@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Mock Test Fine Arts (Painting)</title>
+    <!-- Google Fonts & Tailwind CSS -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Plus Jakarta Sans', 'sans-serif'] },
+                    colors: {
+                        brand: { 50: '#ecfdf5', 100: '#d1fae5', 500: '#10b981', 600: '#059669', 700: '#047857' }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { -webkit-tap-highlight-color: transparent; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans min-h-screen flex flex-col justify-between selection:bg-brand-500 selection:text-white">
+
+    <!-- Top App Bar -->
+    <header class="sticky top-0 z-40 bg-white/80 backdrop-blur-md border-b border-slate-100 px-4 py-3 flex items-center justify-between">
+        <div class="flex items-center space-x-2.5">
+            <div class="w-9 h-9 bg-brand-600 rounded-xl flex items-center justify-center text-white font-bold shadow-lg shadow-brand-500/30">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
+            </div>
+            <div>
+                <h1 id="app-title" class="font-bold text-sm tracking-tight text-slate-900 leading-tight">Mock Test Fine Arts (Painting)</h1>
+                <p id="app-subtitle" class="text-[10px] font-medium text-brand-600">Session 2026-27</p>
+            </div>
+        </div>
+        <div id="header-action"></div>
+    </header>
+
+    <!-- Main Dynamic Container -->
+    <main id="app-main" class="flex-1 max-w-md w-full mx-auto p-4 pb-20">
+        <!-- Loading State -->
+        <div id="loading-view" class="flex flex-col items-center justify-center py-24 space-y-4">
+            <div class="w-10 h-10 border-4 border-brand-500 border-t-transparent rounded-full animate-spin"></div>
+            <p class="text-sm font-medium text-slate-500 animate-pulse">Loading Quiz Data...</p>
+        </div>
+        
+        <!-- Error State -->
+        <div id="error-view" class="hidden flex flex-col items-center justify-center py-20 text-center px-6">
+            <div class="w-16 h-16 bg-rose-100 text-rose-500 rounded-2xl flex items-center justify-center text-xl mb-4 font-bold">!</div>
+            <h3 class="font-bold text-lg text-slate-800">Could not load quizzes</h3>
+            <p id="error-message" class="text-xs text-slate-500 mt-1 mb-6">Please check your internet connection or Google Sheet URL.</p>
+            <button onclick="loadData()" class="bg-brand-600 text-white font-semibold px-6 py-2.5 rounded-xl text-sm shadow-md active:scale-95 transition-transform">Retry</button>
+        </div>
+
+        <!-- Dynamic Views Injected Here -->
+        <div id="view-container"></div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="py-4 text-center border-t border-slate-100 bg-white text-xs text-slate-400">
+        Designed & Developed by <span class="font-semibold text-slate-600">Darpan Sukla</span>
+    </footer>
+
+    <!-- App Logic Scripts -->
+    <script>
+        const SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRc5oTMfGfKrBdfZOqbWIvYbhuNa0DGIQ_6ocYoj60qLYotfp8qzmjLggU9mg3NieQX9reYPYO8f64i/pub?gid=0&single=true&output=csv";
+
+        let globalData = [];
+        let currentView = 'classes'; 
+        let studentName = "";
+        let selectedClass = null;
+        let selectedSet = null;
+        let currentQuestions = [];
+        let currentQuestionIndex = 0;
+        let userAnswers = {};
+
+        function parseCSV(text) {
+            let lines = text.trim().split('\n');
+            let result = [];
+            let headers = parseCSVLine(lines[0]);
+
+            for (let i = 1; i < lines.length; i++) {
+                let obj = {};
+                let currentline = parseCSVLine(lines[i]);
+                if (currentline.length === headers.length) {
+                    for (let j = 0; j < headers.length; j++) {
+                        obj[headers[j].trim()] = currentline[j].trim();
+                    }
+                    result.push(obj);
+                }
+            }
+            return result;
+        }
+
+        function parseCSVLine(text) {
+            let ret = [];
+            let inQuotes = false;
+            let entry = '';
+            for (let i = 0; i < text.length; i++) {
+                let c = text[i];
+                if (c === '"') {
+                    inQuotes = !inQuotes;
+                } else if (c === ',' && !inQuotes) {
+                    ret.push(entry);
+                    entry = '';
+                } else {
+                    entry += c;
+                }
+            }
+            ret.push(entry);
+            return ret;
+        }
+
+        function cleanSetNumber(val) {
+            if(!val) return '1';
+            return val.toString().replace(/set\s*-?/gi, '').trim();
+        }
+
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                let j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        async function loadData() {
+            document.getElementById('loading-view').classList.remove('hidden');
+            document.getElementById('error-view').classList.add('hidden');
+            document.getElementById('view-container').innerHTML = '';
+
+            try {
+                let response = await fetch(SHEET_CSV_URL);
+                let dataText = await response.text();
+                globalData = parseCSV(dataText);
+
+                if(globalData.length === 0) throw new Error("No data parsed");
+
+                document.getElementById('loading-view').classList.add('hidden');
+                renderClassesView();
+            } catch (err) {
+                console.error(err);
+                document.getElementById('loading-view').classList.add('hidden');
+                document.getElementById('error-view').classList.remove('hidden');
+            }
+        }
+
+        // View 1: Classes Grid Screen
+        function renderClassesView() {
+            currentView = 'classes';
+            document.getElementById('app-title').innerText = "Mock Test Fine Arts (Painting)";
+            document.getElementById('app-subtitle').classList.remove('hidden');
+            document.getElementById('header-action').innerHTML = '';
+
+            let classesMap = {};
+            globalData.forEach(row => {
+                let cls = row['Class'] || 'General';
+                if (!classesMap[cls]) classesMap[cls] = 0;
+                classesMap[cls]++;
+            });
+
+            let html = `
+                <div class="mb-5 text-center">
+                    <h2 class="text-lg font-bold text-slate-900">Select Class</h2>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+            `;
+
+            for (let cls in classesMap) {
+                html += `
+                    <div onclick="selectClass('${cls}')" class="bg-white aspect-square rounded-3xl border border-slate-100 shadow-sm active:scale-95 transition-all flex flex-col items-center justify-center p-4 cursor-pointer group hover:border-brand-300 hover:shadow-md">
+                        <div class="w-14 h-14 bg-brand-50 text-brand-600 rounded-2xl flex items-center justify-center font-bold text-xl mb-3 group-hover:bg-brand-600 group-hover:text-white transition-colors shadow-inner">
+                            ${cls.charAt(0).toUpperCase()}
+                        </div>
+                        <h3 class="font-bold text-slate-800 text-sm text-center tracking-tight">${cls}</h3>
+                    </div>
+                `;
+            }
+            html += `</div>`;
+            document.getElementById('view-container').innerHTML = html;
+        }
+
+        function selectClass(cls) {
+            selectedClass = cls;
+            renderSetsView();
+        }
+
+        // View 2: Sets Grid Screen
+        function renderSetsView() {
+            currentView = 'sets';
+            document.getElementById('app-title').innerText = selectedClass;
+            document.getElementById('app-subtitle').classList.add('hidden');
+            document.getElementById('header-action').innerHTML = `
+                <button onclick="renderClassesView()" class="text-xs font-semibold px-3 py-1.5 bg-slate-100 text-slate-600 rounded-xl active:scale-95 transition-transform">Back</button>
+            `;
+
+            let setsMap = {};
+            globalData.filter(r => r['Class'] === selectedClass).forEach(row => {
+                let rawSet = row['Set No.'] || '1';
+                let cleanNum = cleanSetNumber(rawSet);
+                if (!setsMap[cleanNum]) setsMap[cleanNum] = rawSet; 
+            });
+
+            let html = `
+                <div class="mb-5 text-center">
+                    <h2 class="text-lg font-bold text-slate-900">Available Sets</h2>
+                    <p class="text-xs text-slate-500 mt-0.5">Select a set to begin</p>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+            `;
+
+            for (let cleanNum in setsMap) {
+                let rawSetKey = setsMap[cleanNum];
+                html += `
+                    <div onclick="selectSet('${rawSetKey}')" class="bg-white aspect-square rounded-3xl border border-slate-100 shadow-sm active:scale-95 transition-all flex flex-col items-center justify-center p-4 cursor-pointer group hover:border-brand-300 hover:shadow-md">
+                        <div class="w-14 h-14 bg-brand-50 text-brand-600 rounded-2xl flex items-center justify-center font-bold text-xl mb-3 group-hover:bg-brand-600 group-hover:text-white transition-colors shadow-inner">
+                            ${cleanNum}
+                        </div>
+                        <h3 class="font-bold text-slate-800 text-sm text-center tracking-tight">Set ${cleanNum}</h3>
+                    </div>
+                `;
+            }
+            html += `</div>`;
+            document.getElementById('view-container').innerHTML = html;
+        }
+
+        function selectSet(rawSetKey) {
+            selectedSet = rawSetKey;
+            renderNameInputView();
+        }
+
+        // View 2.5: Student Name Input Screen
+        function renderNameInputView() {
+            currentView = 'nameInput';
+            let displaySetNum = cleanSetNumber(selectedSet);
+            document.getElementById('app-title').innerText = `Set ${displaySetNum} (${selectedClass})`;
+            document.getElementById('app-subtitle').classList.add('hidden');
+            document.getElementById('header-action').innerHTML = `
+                <button onclick="renderSetsView()" class="text-xs font-semibold px-3 py-1.5 bg-slate-100 text-slate-600 rounded-xl active:scale-95 transition-transform">Back</button>
+            `;
+
+            let html = `
+                <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm mt-4">
+                    <div class="text-center mb-6">
+                        <h2 class="text-lg font-bold text-slate-900">Enter Your Name</h2>
+                        <p class="text-xs text-slate-500 mt-1">Please type your name to start this quiz set.</p>
+                    </div>
+
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1.5">FULL NAME</label>
+                            <input type="text" id="student-name-input" value="${studentName}" oninput="this.value = this.value.toUpperCase(); studentName = this.value;" placeholder="ENTER YOUR FULL NAME" class="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-bold text-slate-900 uppercase focus:outline-none focus:border-brand-500 focus:bg-white transition-colors" autocomplete="off">
+                        </div>
+
+                        <button onclick="startQuiz()" class="w-full bg-brand-600 text-white font-semibold py-3.5 rounded-2xl text-sm shadow-lg shadow-brand-500/25 active:scale-[0.98] transition-transform">
+                            Start Quiz
+                        </button>
+                    </div>
+                </div>
+            `;
+            document.getElementById('view-container').innerHTML = html;
+            
+            setTimeout(() => {
+                let input = document.getElementById('student-name-input');
+                if(input && !studentName) input.focus();
+            }, 100);
+        }
+
+        function startQuiz() {
+            let input = document.getElementById('student-name-input');
+            studentName = input ? input.value.trim().toUpperCase() : "";
+
+            if(!studentName) {
+                alert("Please enter your name to start the quiz.");
+                if(input) input.focus();
+                return;
+            }
+
+            let cleanNum = cleanSetNumber(selectedSet);
+            let filtered = globalData.filter(r => {
+                let rClass = r['Class'] || 'General';
+                let rSet = cleanSetNumber(r['Set No.'] || '1');
+                return rClass === selectedClass && rSet === cleanNum;
+            });
+
+            // Shuffle Questions and build randomized options for each
+            let shuffledQuestions = shuffleArray([...filtered]);
+            currentQuestions = shuffledQuestions.map(q => {
+                let optionsList = [
+                    { originalKey: 'A', text: q['Option A'] },
+                    { originalKey: 'B', text: q['Option B'] },
+                    { originalKey: 'C', text: q['Option C'] },
+                    { originalKey: 'D', text: q['Option D'] }
+                ].filter(o => o.text && o.text.trim() !== "");
+
+                shuffleArray(optionsList);
+
+                let randomizedOptions = {};
+                let newCorrectKey = '';
+                const assignedKeys = ['A', 'B', 'C', 'D'];
+
+                optionsList.forEach((opt, idx) => {
+                    let newKey = assignedKeys[idx];
+                    randomizedOptions[newKey] = opt.text;
+                    if (opt.originalKey === q['Correct Answer']) {
+                        newCorrectKey = newKey;
+                    }
+                });
+
+                return {
+                    questionText: q['Questions'],
+                    options: randomizedOptions,
+                    correctAnswer: newCorrectKey
+                };
+            });
+
+            currentQuestionIndex = 0;
+            userAnswers = {};
+            renderQuizView();
+        }
+
+        // View 3: Quiz Screen
+        function renderQuizView() {
+            currentView = 'quiz';
+            let q = currentQuestions[currentQuestionIndex];
+            let progress = ((currentQuestionIndex + 1) / currentQuestions.length) * 100;
+            let currentAnswer = userAnswers[currentQuestionIndex];
+            let displaySetNum = cleanSetNumber(selectedSet);
+
+            document.getElementById('app-title').innerText = `Set ${displaySetNum} (${currentQuestionIndex + 1}/${currentQuestions.length})`;
+            document.getElementById('app-subtitle').classList.add('hidden');
+            document.getElementById('header-action').innerHTML = `
+                <button onclick="if(confirm('Quit quiz?')) renderSetsView();" class="text-xs font-semibold px-3 py-1.5 bg-rose-50 text-rose-600 rounded-xl">Quit</button>
+            `;
+
+            let html = `
+                <div class="mb-3 text-xs text-slate-500 flex justify-between items-center px-1">
+                    <span>Student: <strong class="text-slate-800">${studentName}</strong></span>
+                    <span class="font-semibold text-brand-600">${selectedClass}</span>
+                </div>
+
+                <!-- Progress Bar -->
+                <div class="w-full bg-slate-200 h-1.5 rounded-full mb-5 overflow-hidden">
+                    <div class="bg-brand-600 h-full transition-all duration-300" style="width: ${progress}%"></div>
+                </div>
+
+                <!-- Question Card -->
+                <div class="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm mb-4">
+                    <span class="text-[11px] font-bold text-brand-600 uppercase tracking-wider">Question ${currentQuestionIndex + 1}</span>
+                    <h3 class="font-semibold text-slate-900 text-base mt-1.5 leading-snug">${q.questionText}</h3>
+                </div>
+
+                <!-- Options Grid -->
+                <div class="space-y-3 mb-6">
+            `;
+
+            for (let key in q.options) {
+                let optText = q.options[key];
+                let isSelected = currentAnswer === key;
+                let btnStyle = isSelected 
+                    ? "bg-brand-50 border-brand-500 text-brand-900 font-medium" 
+                    : "bg-white border-slate-100 text-slate-700";
+
+                html += `
+                    <button onclick="handleOptionClick('${key}')" class="w-full text-left p-4 rounded-2xl border ${btnStyle} shadow-sm active:scale-[0.99] transition-all flex items-center space-x-3">
+                        <span class="w-7 h-7 rounded-lg bg-slate-100 flex items-center justify-center text-xs font-bold text-slate-600 flex-shrink-0">${key}</span>
+                        <span class="text-sm flex-1">${optText}</span>
+                    </button>
+                `;
+            }
+
+            html += `</div>`;
+
+            // Navigation Controls
+            html += `
+                <div class="flex space-x-3">
+                    ${currentQuestionIndex > 0 ? `<button onclick="prevQuestion()" class="flex-1 bg-white border border-slate-200 text-slate-700 font-semibold py-3.5 rounded-2xl text-sm active:scale-[0.98] transition-transform">Prev</button>` : ''}
+                    
+                    <button onclick="nextQuestion()" class="flex-1 bg-brand-600 text-white font-semibold py-3.5 rounded-2xl text-sm shadow-lg shadow-brand-500/25 active:scale-[0.98] transition-transform">
+                        ${currentQuestionIndex === currentQuestions.length - 1 ? 'Submit & Review' : 'Next'}
+                    </button>
+                </div>
+            `;
+
+            document.getElementById('view-container').innerHTML = html;
+        }
+
+        function handleOptionClick(optKey) {
+            userAnswers[currentQuestionIndex] = optKey;
+            renderQuizView();
+        }
+
+        function nextQuestion() {
+            if (currentQuestionIndex < currentQuestions.length - 1) {
+                currentQuestionIndex++;
+                renderQuizView();
+            } else {
+                showResults();
+            }
+        }
+
+        function prevQuestion() {
+            if (currentQuestionIndex > 0) {
+                currentQuestionIndex--;
+                renderQuizView();
+            }
+        }
+
+        // View 4: Result & Detailed Review Screen
+        function showResults() {
+            currentView = 'results';
+            document.getElementById('app-title').innerText = "Quiz Results & Review";
+            document.getElementById('app-subtitle').classList.add('hidden');
+            document.getElementById('header-action').innerHTML = `
+                <button onclick="renderSetsView()" class="text-xs font-semibold px-3 py-1.5 bg-slate-100 text-slate-600 rounded-xl">Sets</button>
+            `;
+
+            let total = currentQuestions.length;
+            let score = 0;
+
+            currentQuestions.forEach((q, idx) => {
+                if (userAnswers[idx] === q.correctAnswer) {
+                    score++;
+                }
+            });
+
+            let percentage = Math.round((score / total) * 100);
+            let badgeText = "Great Performance";
+            if (percentage < 50) badgeText = "Keep Practicing";
+            else if (percentage >= 85) badgeText = "Outstanding Result";
+            let displaySetNum = cleanSetNumber(selectedSet);
+
+            let html = `
+                <!-- Score Summary Box -->
+                <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm text-center mb-6">
+                    <span class="inline-block text-[11px] font-bold bg-brand-50 text-brand-700 px-3 py-1 rounded-full mb-3">${studentName}</span>
+                    <div class="w-16 h-16 bg-brand-50 text-brand-600 rounded-2xl flex items-center justify-center text-xl mx-auto mb-3 font-bold">
+                        ${percentage}%
+                    </div>
+                    <h2 class="text-xl font-bold text-slate-900">${badgeText}</h2>
+                    <p class="text-xs text-slate-500 mt-1">${selectedClass} | Set ${displaySetNum}</p>
+
+                    <div class="grid grid-cols-2 gap-3 mt-6 pt-6 border-t border-slate-100">
+                        <div class="bg-slate-50 p-4 rounded-2xl">
+                            <span class="text-xs text-slate-400 block font-semibold uppercase tracking-wider mb-1">Total Marks</span>
+                            <span class="text-2xl font-black text-emerald-600">${score} <span class="text-sm font-bold text-slate-400">/ ${total}</span></span>
+                        </div>
+                        <div class="bg-slate-50 p-4 rounded-2xl">
+                            <span class="text-xs text-slate-400 block font-semibold uppercase tracking-wider mb-1">Incorrect</span>
+                            <span class="text-2xl font-black text-rose-500">${total - score} <span class="text-sm font-bold text-slate-400">/ ${total}</span></span>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            // Filter for incorrect answers only
+            let incorrectQuestions = [];
+            currentQuestions.forEach((q, idx) => {
+                let userAns = userAnswers[idx];
+                if (userAns !== q.correctAnswer) {
+                    incorrectQuestions.push({ q, idx, userAns });
+                }
+            });
+
+            if (incorrectQuestions.length > 0) {
+                html += `
+                    <div class="mb-4">
+                        <h3 class="font-bold text-slate-900 text-base">Incorrect Answers Review</h3>
+                        <p class="text-xs text-slate-500 mt-0.5">Review the questions you missed below:</p>
+                    </div>
+                    <div class="space-y-4 mb-6">
+                `;
+
+                incorrectQuestions.forEach(item => {
+                    let { q, idx, userAns } = item;
+                    let correctAnsKey = q.correctAnswer;
+                    let correctAnsText = q.options[correctAnsKey];
+                    let userAnsText = userAns ? q.options[userAns] : 'Not Answered';
+
+                    html += `
+                        <div class="bg-white p-4 rounded-2xl border border-rose-200 bg-rose-50/20 shadow-sm">
+                            <div class="flex items-start justify-between mb-2">
+                                <span class="text-[11px] font-bold text-slate-400">Q${idx + 1}</span>
+                                <span class="text-[10px] font-bold bg-rose-100 text-rose-700 px-2 py-0.5 rounded-full">Incorrect</span>
+                            </div>
+                            <h4 class="font-semibold text-slate-900 text-sm mb-3">${q.questionText}</h4>
+                            
+                            <div class="space-y-1.5 text-xs">
+                                <div class="p-2 rounded-xl bg-slate-50 text-slate-600">
+                                    <span class="font-semibold">Your Answer:</span> ${userAns ? userAns + ': ' + userAnsText : '<span class="italic text-slate-400">Not Answered</span>'}
+                                </div>
+                                <div class="p-2 rounded-xl bg-emerald-50 text-emerald-800">
+                                    <span class="font-semibold">Correct Answer:</span> ${correctAnsKey}: ${correctAnsText}
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+                html += `</div>`;
+            } else {
+                html += `
+                    <div class="bg-emerald-50 border border-emerald-200 p-5 rounded-3xl text-center mb-6">
+                        <h3 class="font-bold text-emerald-900 text-sm">Flawless Performance</h3>
+                        <p class="text-xs text-emerald-700 mt-1">You answered every question correctly. Amazing job!</p>
+                    </div>
+                `;
+            }
+
+            html += `
+                <div class="space-y-3">
+                    <button onclick="renderNameInputView()" class="w-full bg-brand-600 text-white font-semibold py-3.5 rounded-2xl text-sm shadow-lg shadow-brand-500/25 active:scale-[0.98] transition-transform">
+                        Retake Set
+                    </button>
+                    <button onclick="renderSetsView()" class="w-full bg-white border border-slate-200 text-slate-700 font-semibold py-3.5 rounded-2xl text-sm active:scale-[0.98] transition-transform">
+                        Choose Another Set
+                    </button>
+                </div>
+            `;
+            document.getElementById('view-container').innerHTML = html;
+        }
+
+        window.onload = loadData;
+    </script>
+</body>
+</html>
