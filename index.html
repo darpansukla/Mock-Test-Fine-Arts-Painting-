@@ -21,6 +21,12 @@
     </script>
     <style>
         body { -webkit-tap-highlight-color: transparent; }
+        @keyframes pulse-once {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        .animate-pulse-once { animation: pulse-once 0.3s ease-in-out; }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-800 font-sans min-h-screen flex flex-col justify-between selection:bg-brand-500 selection:text-white">
@@ -76,6 +82,79 @@
         let currentQuestions = [];
         let currentQuestionIndex = 0;
         let userAnswers = {};
+        let currentStreak = 0;
+        let maxStreakAchieved = 0;
+        let audioCtx = null;
+
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+        }
+
+        // Web Audio Sound Synthesizer Functions
+        function playOptionSelectSound() {
+            try {
+                initAudio();
+                let now = audioCtx.currentTime;
+                let osc = audioCtx.createOscillator();
+                let gain = audioCtx.createGain();
+
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(523.25, now); // C5
+                osc.frequency.setValueAtTime(659.25, now + 0.08); // E5
+                osc.frequency.setValueAtTime(783.99, now + 0.16); // G5
+
+                gain.gain.setValueAtTime(0.15, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                osc.start(now);
+                osc.stop(now + 0.35);
+            } catch (e) {
+                console.log("Audio not supported yet");
+            }
+        }
+
+        function playVictorySound() {
+            try {
+                initAudio();
+                // Energetic custom victory fanfare sequence
+                let notes = [
+                    { f: 523.25, t: 0.0, d: 0.12 }, // C5
+                    { f: 659.25, t: 0.12, d: 0.12 }, // E5
+                    { f: 783.99, t: 0.24, d: 0.12 }, // G5
+                    { f: 1046.50, t: 0.36, d: 0.25 }, // C6
+                    { f: 783.99, t: 0.61, d: 0.12 }, // G5
+                    { f: 1046.50, t: 0.73, d: 0.45 }  // C6 (Final high sustained note)
+                ];
+
+                notes.forEach(note => {
+                    let now = audioCtx.currentTime + note.t;
+                    let osc = audioCtx.createOscillator();
+                    let gain = audioCtx.createGain();
+
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(note.f, now);
+
+                    gain.gain.setValueAtTime(0.18, now);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + note.d);
+
+                    osc.connect(gain);
+                    gain.connect(audioCtx.destination);
+
+                    osc.start(now);
+                    osc.stop(now + note.d);
+                });
+            } catch (e) {
+                console.log("Audio not supported yet");
+            }
+        }
 
         function parseCSV(text) {
             let lines = text.trim().split('\n');
@@ -171,7 +250,7 @@
 
             for (let cls in classesMap) {
                 html += `
-                    <div onclick="selectClass('${cls}')" class="bg-white aspect-square rounded-3xl border border-slate-100 shadow-sm active:scale-95 transition-all flex flex-col items-center justify-center p-4 cursor-pointer group hover:border-brand-300 hover:shadow-md">
+                    <div onclick="initAudio(); selectClass('${cls}')" class="bg-white aspect-square rounded-3xl border border-slate-100 shadow-sm active:scale-95 transition-all flex flex-col items-center justify-center p-4 cursor-pointer group hover:border-brand-300 hover:shadow-md">
                         <div class="w-14 h-14 bg-brand-50 text-brand-600 rounded-2xl flex items-center justify-center font-bold text-xl mb-3 group-hover:bg-brand-600 group-hover:text-white transition-colors shadow-inner">
                             ${cls.charAt(0).toUpperCase()}
                         </div>
@@ -214,12 +293,17 @@
 
             for (let cleanNum in setsMap) {
                 let rawSetKey = setsMap[cleanNum];
+                let storageKey = `highScore_${selectedClass}_Set_${cleanNum}`;
+                let bestScore = localStorage.getItem(storageKey);
+                let badgeSub = bestScore ? `Best: ${bestScore}` : `Tap to start`;
+
                 html += `
-                    <div onclick="selectSet('${rawSetKey}')" class="bg-white aspect-square rounded-3xl border border-slate-100 shadow-sm active:scale-95 transition-all flex flex-col items-center justify-center p-4 cursor-pointer group hover:border-brand-300 hover:shadow-md">
-                        <div class="w-14 h-14 bg-brand-50 text-brand-600 rounded-2xl flex items-center justify-center font-bold text-xl mb-3 group-hover:bg-brand-600 group-hover:text-white transition-colors shadow-inner">
+                    <div onclick="selectSet('${rawSetKey}')" class="bg-white aspect-square rounded-3xl border border-slate-100 shadow-sm active:scale-95 transition-all flex flex-col items-center justify-center p-3 cursor-pointer group hover:border-brand-300 hover:shadow-md relative overflow-hidden">
+                        <div class="w-12 h-12 bg-brand-50 text-brand-600 rounded-2xl flex items-center justify-center font-bold text-lg mb-2 group-hover:bg-brand-600 group-hover:text-white transition-colors shadow-inner">
                             ${cleanNum}
                         </div>
                         <h3 class="font-bold text-slate-800 text-sm text-center tracking-tight">Set ${cleanNum}</h3>
+                        <span class="text-[10px] font-semibold text-brand-600 mt-0.5">${badgeSub}</span>
                     </div>
                 `;
             }
@@ -270,6 +354,7 @@
         }
 
         function startQuiz() {
+            initAudio();
             let input = document.getElementById('student-name-input');
             studentName = input ? input.value.trim().toUpperCase() : "";
 
@@ -286,7 +371,6 @@
                 return rClass === selectedClass && rSet === cleanNum;
             });
 
-            // Shuffle Questions and build randomized options for each
             let shuffledQuestions = shuffleArray([...filtered]);
             currentQuestions = shuffledQuestions.map(q => {
                 let optionsList = [
@@ -319,6 +403,8 @@
 
             currentQuestionIndex = 0;
             userAnswers = {};
+            currentStreak = 0;
+            maxStreakAchieved = 0;
             renderQuizView();
         }
 
@@ -339,7 +425,10 @@
             let html = `
                 <div class="mb-3 text-xs text-slate-500 flex justify-between items-center px-1">
                     <span>Student: <strong class="text-slate-800">${studentName}</strong></span>
-                    <span class="font-semibold text-brand-600">${selectedClass}</span>
+                    <div class="flex items-center space-x-2">
+                        ${currentStreak > 1 ? `<span class="bg-amber-100 text-amber-800 font-bold px-2 py-0.5 rounded-full text-[10px] animate-pulse-once">Streak: ${currentStreak}</span>` : ''}
+                        <span class="font-semibold text-brand-600">${selectedClass}</span>
+                    </div>
                 </div>
 
                 <!-- Progress Bar -->
@@ -389,7 +478,25 @@
         }
 
         function handleOptionClick(optKey) {
+            let q = currentQuestions[currentQuestionIndex];
             userAnswers[currentQuestionIndex] = optKey;
+
+            // Trigger sound & haptics for ANY selected option
+            playOptionSelectSound();
+            if (navigator.vibrate) {
+                navigator.vibrate(40);
+            }
+
+            // Handle streaks
+            if (optKey === q.correctAnswer) {
+                currentStreak++;
+                if (currentStreak > maxStreakAchieved) {
+                    maxStreakAchieved = currentStreak;
+                }
+            } else {
+                currentStreak = 0;
+            }
+
             renderQuizView();
         }
 
@@ -398,6 +505,7 @@
                 currentQuestionIndex++;
                 renderQuizView();
             } else {
+                playVictorySound();
                 showResults();
             }
         }
@@ -427,21 +535,33 @@
                 }
             });
 
+            // Save High Score to Local Storage
+            let cleanNum = cleanSetNumber(selectedSet);
+            let storageKey = `highScore_${selectedClass}_Set_${cleanNum}`;
+            let existingBest = parseInt(localStorage.getItem(storageKey)) || 0;
+            let isNewBest = false;
+            if (score > existingBest) {
+                localStorage.setItem(storageKey, score);
+                isNewBest = true;
+            }
+
             let percentage = Math.round((score / total) * 100);
-            let badgeText = "Great Performance";
-            if (percentage < 50) badgeText = "Keep Practicing";
-            else if (percentage >= 85) badgeText = "Outstanding Result";
-            let displaySetNum = cleanSetNumber(selectedSet);
+            let badgeText = "Gallery Prodigy";
+            if (percentage === 100) badgeText = "Master Artist";
+            else if (percentage >= 80) badgeText = "Prodigy Painter";
+            else if (percentage >= 50) badgeText = "Rising Star";
+            else badgeText = "Sketching Potential";
 
             let html = `
                 <!-- Score Summary Box -->
-                <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm text-center mb-6">
+                <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm text-center mb-6 relative">
+                    ${isNewBest ? '<span class="absolute top-4 right-4 bg-amber-100 text-amber-800 text-[10px] font-bold px-2.5 py-1 rounded-full">New Personal Best</span>' : ''}
                     <span class="inline-block text-[11px] font-bold bg-brand-50 text-brand-700 px-3 py-1 rounded-full mb-3">${studentName}</span>
                     <div class="w-16 h-16 bg-brand-50 text-brand-600 rounded-2xl flex items-center justify-center text-xl mx-auto mb-3 font-bold">
                         ${percentage}%
                     </div>
                     <h2 class="text-xl font-bold text-slate-900">${badgeText}</h2>
-                    <p class="text-xs text-slate-500 mt-1">${selectedClass} | Set ${displaySetNum}</p>
+                    <p class="text-xs text-slate-500 mt-1">${selectedClass} | Set ${cleanNum}</p>
 
                     <div class="grid grid-cols-2 gap-3 mt-6 pt-6 border-t border-slate-100">
                         <div class="bg-slate-50 p-4 rounded-2xl">
@@ -449,8 +569,8 @@
                             <span class="text-2xl font-black text-emerald-600">${score} <span class="text-sm font-bold text-slate-400">/ ${total}</span></span>
                         </div>
                         <div class="bg-slate-50 p-4 rounded-2xl">
-                            <span class="text-xs text-slate-400 block font-semibold uppercase tracking-wider mb-1">Incorrect</span>
-                            <span class="text-2xl font-black text-rose-500">${total - score} <span class="text-sm font-bold text-slate-400">/ ${total}</span></span>
+                            <span class="text-xs text-slate-400 block font-semibold uppercase tracking-wider mb-1">Max Streak</span>
+                            <span class="text-2xl font-black text-amber-500">${maxStreakAchieved}</span>
                         </div>
                     </div>
                 </div>
