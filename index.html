@@ -227,7 +227,7 @@
             }
         }
 
-        // View 1: Classes Grid Screen
+        // View 1: Classes Grid Screen (Fine Arts Related Icons & Colors)
         function renderClassesView() {
             currentView = 'classes';
             document.getElementById('app-title').innerText = "Mock Test Fine Arts (Painting)";
@@ -241,6 +241,35 @@
                 classesMap[cls]++;
             });
 
+            // Fine Arts / Painting related icon themes with distinct colors
+            const classThemes = [
+                {
+                    // 1. Color Palette Icon (Emerald)
+                    bg: 'bg-emerald-50', text: 'text-emerald-600', hoverBg: 'group-hover:bg-emerald-600', hoverBorder: 'hover:border-emerald-300',
+                    icon: `<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zm4 0a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zm2 4a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z"></path></svg>`
+                },
+                {
+                    // 2. Paint Brush Icon (Blue)
+                    bg: 'bg-blue-50', text: 'text-blue-600', hoverBg: 'group-hover:bg-blue-600', hoverBorder: 'hover:border-blue-300',
+                    icon: `<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>`
+                },
+                {
+                    // 3. Canvas Easel Icon (Amber)
+                    bg: 'bg-amber-50', text: 'text-amber-600', hoverBg: 'group-hover:bg-amber-600', hoverBorder: 'hover:border-amber-300',
+                    icon: `<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>`
+                },
+                {
+                    // 4. Paint Tube Icon (Purple)
+                    bg: 'bg-purple-50', text: 'text-purple-600', hoverBg: 'group-hover:bg-purple-600', hoverBorder: 'hover:border-purple-300',
+                    icon: `<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path></svg>`
+                },
+                {
+                    // 5. Picture Frame / Artwork Icon (Rose)
+                    bg: 'bg-rose-50', text: 'text-rose-600', hoverBg: 'group-hover:bg-rose-600', hoverBorder: 'hover:border-rose-300',
+                    icon: `<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 13h6m-3-3v6m-9 1V7a2 2 0 012-2h14a2 2 0 012 2v10a2 2 0 01-2 2H4a2 2 0 01-2-2z"></path></svg>`
+                }
+            ];
+
             let html = `
                 <div class="mb-5 text-center">
                     <h2 class="text-lg font-bold text-slate-900">Select Class</h2>
@@ -248,15 +277,18 @@
                 <div class="grid grid-cols-2 gap-4">
             `;
 
+            let index = 0;
             for (let cls in classesMap) {
+                let theme = classThemes[index % classThemes.length];
                 html += `
-                    <div onclick="initAudio(); selectClass('${cls}')" class="bg-white aspect-square rounded-3xl border border-slate-100 shadow-sm active:scale-95 transition-all flex flex-col items-center justify-center p-4 cursor-pointer group hover:border-brand-300 hover:shadow-md">
-                        <div class="w-14 h-14 bg-brand-50 text-brand-600 rounded-2xl flex items-center justify-center font-bold text-xl mb-3 group-hover:bg-brand-600 group-hover:text-white transition-colors shadow-inner">
-                            ${cls.charAt(0).toUpperCase()}
+                    <div onclick="initAudio(); selectClass('${cls}')" class="bg-white aspect-square rounded-3xl border border-slate-100 shadow-sm active:scale-95 transition-all flex flex-col items-center justify-center p-4 cursor-pointer group ${theme.hoverBorder} hover:shadow-md">
+                        <div class="w-14 h-14 ${theme.bg} ${theme.text} rounded-2xl flex items-center justify-center font-bold mb-3 ${theme.hoverBg} group-hover:text-white transition-colors shadow-inner">
+                            ${theme.icon}
                         </div>
                         <h3 class="font-bold text-slate-800 text-sm text-center tracking-tight">${cls}</h3>
                     </div>
                 `;
+                index++;
             }
             html += `</div>`;
             document.getElementById('view-container').innerHTML = html;
@@ -267,7 +299,7 @@
             renderSetsView();
         }
 
-        // View 2: Sets Grid Screen
+        // View 2: Sets Grid Screen (Distinct Colors for each Set)
         function renderSetsView() {
             currentView = 'sets';
             document.getElementById('app-title').innerText = selectedClass;
@@ -283,6 +315,16 @@
                 if (!setsMap[cleanNum]) setsMap[cleanNum] = rawSet; 
             });
 
+            // Distinct theme profiles for each set card
+            const setThemes = [
+                { bg: 'bg-emerald-50', text: 'text-emerald-600', hoverBg: 'group-hover:bg-emerald-600', hoverBorder: 'hover:border-emerald-300', subText: 'text-emerald-600' },
+                { bg: 'bg-blue-50', text: 'text-blue-600', hoverBg: 'group-hover:bg-blue-600', hoverBorder: 'hover:border-blue-300', subText: 'text-blue-600' },
+                { bg: 'bg-amber-50', text: 'text-amber-600', hoverBg: 'group-hover:bg-amber-600', hoverBorder: 'hover:border-amber-300', subText: 'text-amber-600' },
+                { bg: 'bg-purple-50', text: 'text-purple-600', hoverBg: 'group-hover:bg-purple-600', hoverBorder: 'hover:border-purple-300', subText: 'text-purple-600' },
+                { bg: 'bg-rose-50', text: 'text-rose-600', hoverBg: 'group-hover:bg-rose-600', hoverBorder: 'hover:border-rose-300', subText: 'text-rose-600' },
+                { bg: 'bg-cyan-50', text: 'text-cyan-600', hoverBg: 'group-hover:bg-cyan-600', hoverBorder: 'hover:border-cyan-300', subText: 'text-cyan-600' }
+            ];
+
             let html = `
                 <div class="mb-5 text-center">
                     <h2 class="text-lg font-bold text-slate-900">Available Sets</h2>
@@ -291,21 +333,24 @@
                 <div class="grid grid-cols-2 gap-4">
             `;
 
+            let index = 0;
             for (let cleanNum in setsMap) {
                 let rawSetKey = setsMap[cleanNum];
                 let storageKey = `highScore_${selectedClass}_Set_${cleanNum}`;
                 let bestScore = localStorage.getItem(storageKey);
                 let badgeSub = bestScore ? `Best: ${bestScore}` : `Tap to start`;
+                let theme = setThemes[index % setThemes.length];
 
                 html += `
-                    <div onclick="selectSet('${rawSetKey}')" class="bg-white aspect-square rounded-3xl border border-slate-100 shadow-sm active:scale-95 transition-all flex flex-col items-center justify-center p-3 cursor-pointer group hover:border-brand-300 hover:shadow-md relative overflow-hidden">
-                        <div class="w-12 h-12 bg-brand-50 text-brand-600 rounded-2xl flex items-center justify-center font-bold text-lg mb-2 group-hover:bg-brand-600 group-hover:text-white transition-colors shadow-inner">
+                    <div onclick="selectSet('${rawSetKey}')" class="bg-white aspect-square rounded-3xl border border-slate-100 shadow-sm active:scale-95 transition-all flex flex-col items-center justify-center p-3 cursor-pointer group ${theme.hoverBorder} hover:shadow-md relative overflow-hidden">
+                        <div class="w-12 h-12 ${theme.bg} ${theme.text} rounded-2xl flex items-center justify-center font-bold text-lg mb-2 ${theme.hoverBg} group-hover:text-white transition-colors shadow-inner">
                             ${cleanNum}
                         </div>
                         <h3 class="font-bold text-slate-800 text-sm text-center tracking-tight">Set ${cleanNum}</h3>
-                        <span class="text-[10px] font-semibold text-brand-600 mt-0.5">${badgeSub}</span>
+                        <span class="text-[10px] font-semibold ${theme.subText} mt-0.5">${badgeSub}</span>
                     </div>
                 `;
+                index++;
             }
             html += `</div>`;
             document.getElementById('view-container').innerHTML = html;
