@@ -13,7 +13,7 @@
                 extend: {
                     fontFamily: { sans: ['Plus Jakarta Sans', 'sans-serif'] },
                     colors: {
-                        brand: { 50: '#ecfdf5', 100: '#d1fae5', 500: '#10b981', 600: '#059669', 700: '#047857' }
+                        brand: { 50: '#ecfdf5', 100: '#d1fae5', 250: '#6ee7b7', 500: '#10b981', 600: '#059669', 700: '#047857' }
                     }
                 }
             }
@@ -29,17 +29,17 @@
         .animate-pulse-once { animation: pulse-once 0.3s ease-in-out; }
     </style>
 </head>
-<body class="bg-slate-50 text-slate-800 font-sans min-h-screen flex flex-col justify-between selection:bg-brand-500 selection:text-white">
+<body class="bg-gradient-to-br from-slate-50 via-emerald-50/20 to-slate-100 text-slate-800 font-sans min-h-screen flex flex-col justify-between selection:bg-brand-500 selection:text-white">
 
-    <!-- Top App Bar -->
-    <header class="sticky top-0 z-40 bg-white/85 backdrop-blur-md border-b border-slate-100 px-4 py-3 flex items-center justify-between">
-        <div class="flex items-center space-x-2.5">
-            <div class="w-9 h-9 bg-brand-600 rounded-xl flex items-center justify-center text-white font-bold shadow-lg shadow-brand-500/30">
+    <!-- Top Modern Glass App Bar -->
+    <header class="sticky top-0 z-40 bg-white/85 backdrop-blur-md border-b border-emerald-100/60 px-4 py-3 flex items-center justify-between shadow-sm">
+        <div class="flex items-center space-x-3">
+            <div class="w-10 h-10 bg-gradient-to-tr from-brand-600 to-brand-500 rounded-2xl flex items-center justify-center text-white font-bold shadow-md shadow-brand-500/25">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
             </div>
             <div>
                 <h1 id="app-title" class="font-bold text-sm tracking-tight text-slate-900 leading-tight">Fine Arts Theory</h1>
-                <p id="app-subtitle" class="text-[10px] font-medium text-brand-600">Video Lessons & Mock Test</p>
+                <p id="app-subtitle" class="text-[10px] font-semibold text-brand-600 tracking-wide uppercase">Video Lessons & Mock Test</p>
             </div>
         </div>
         <div id="header-action"></div>
@@ -49,16 +49,16 @@
     <main id="app-main" class="flex-1 max-w-md w-full mx-auto p-4 pb-20">
         <!-- Loading State -->
         <div id="loading-view" class="flex flex-col items-center justify-center py-24 space-y-4">
-            <div class="w-10 h-10 border-4 border-brand-500 border-t-transparent rounded-full animate-spin"></div>
-            <p class="text-sm font-medium text-slate-500 animate-pulse">Loading App Data...</p>
+            <div class="w-10 h-10 border-4 border-brand-500 border-t-transparent rounded-full animate-spin shadow-sm"></div>
+            <p class="text-xs font-semibold text-slate-500 tracking-wide animate-pulse">Loading Application...</p>
         </div>
         
         <!-- Error State -->
         <div id="error-view" class="hidden flex flex-col items-center justify-center py-20 text-center px-6">
-            <div class="w-16 h-16 bg-rose-100 text-rose-500 rounded-2xl flex items-center justify-center text-xl mb-4 font-bold">!</div>
-            <h3 class="font-bold text-lg text-slate-800">Could not load data</h3>
-            <p id="error-message" class="text-xs text-slate-500 mt-1 mb-6">Please check your internet connection or Google Sheet URL.</p>
-            <button onclick="loadData()" class="bg-brand-600 text-white font-semibold px-6 py-2.5 rounded-xl text-sm shadow-md active:scale-95 transition-transform">Retry</button>
+            <div class="w-16 h-16 bg-rose-100 text-rose-500 rounded-2xl flex items-center justify-center text-xl mb-4 font-bold shadow-inner">!</div>
+            <h3 class="font-bold text-lg text-slate-800">Could not load content</h3>
+            <p id="error-message" class="text-xs text-slate-500 mt-1 mb-6">Please verify your internet connection or Google Sheet source link.</p>
+            <button onclick="loadData()" class="bg-brand-600 text-white font-semibold px-6 py-2.5 rounded-xl text-sm shadow-md shadow-brand-500/25 active:scale-95 transition-transform">Retry Connection</button>
         </div>
 
         <!-- Dynamic Views Injected Here -->
@@ -66,7 +66,7 @@
     </main>
 
     <!-- Footer -->
-    <footer class="py-4 text-center border-t border-slate-100 bg-white text-xs text-slate-400">
+    <footer class="py-4 text-center border-t border-emerald-100/40 bg-white/60 backdrop-blur-sm text-xs text-slate-400">
         Designed & Developed by <span class="font-semibold text-slate-600">Darpan Sukla</span>
     </footer>
 
@@ -90,7 +90,7 @@
         let videoLessonsList = [];
         let currentVideoIndex = 0;
         let videoListPage = 0;
-        let videosPerPage = 8;
+        let videosPerPage = 6;
         let ytPlayer = null;
         let currentQuality = 'default';
 
@@ -197,16 +197,16 @@
             });
 
             const classThemes = [
-                { bg: 'bg-emerald-50', text: 'text-emerald-600', hoverBg: 'group-hover:bg-emerald-600', hoverBorder: 'hover:border-emerald-300', icon: `<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zm4 0a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zm2 4a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z"></path></svg>` },
-                { bg: 'bg-blue-50', text: 'text-blue-600', hoverBg: 'group-hover:bg-blue-600', hoverBorder: 'hover:border-blue-300', icon: `<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>` },
-                { bg: 'bg-amber-50', text: 'text-amber-600', hoverBg: 'group-hover:bg-amber-600', hoverBorder: 'hover:border-amber-300', icon: `<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>` },
-                { bg: 'bg-purple-50', text: 'text-purple-600', hoverBg: 'group-hover:bg-purple-600', hoverBorder: 'hover:border-purple-300', icon: `<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path></svg>` },
-                { bg: 'bg-rose-50', text: 'text-rose-600', hoverBg: 'group-hover:bg-rose-600', hoverBorder: 'hover:border-rose-300', icon: `<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 13h6m-3-3v6m-9 1V7a2 2 0 012-2h14a2 2 0 012 2v10a2 2 0 01-2 2H4a2 2 0 01-2-2z"></path></svg>` }
+                { bg: 'bg-emerald-50', text: 'text-emerald-600', hoverBg: 'group-hover:bg-emerald-600', hoverBorder: 'hover:border-emerald-300', icon: `<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>` },
+                { bg: 'bg-teal-50', text: 'text-teal-600', hoverBg: 'group-hover:bg-teal-600', hoverBorder: 'hover:border-teal-300', icon: `<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>` },
+                { bg: 'bg-cyan-50', text: 'text-cyan-600', hoverBg: 'group-hover:bg-cyan-600', hoverBorder: 'hover:border-cyan-300', icon: `<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>` },
+                { bg: 'bg-emerald-50', text: 'text-emerald-700', hoverBg: 'group-hover:bg-emerald-600', hoverBorder: 'hover:border-emerald-300', icon: `<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path></svg>` }
             ];
 
             let html = `
                 <div class="mb-5 text-center">
-                    <h2 class="text-lg font-bold text-slate-900">Select Class</h2>
+                    <h2 class="text-lg font-bold text-slate-900 tracking-tight">Select Class</h2>
+                    <p class="text-xs text-slate-500 mt-0.5">Choose your target academic standard</p>
                 </div>
                 <div class="grid grid-cols-2 gap-4">
             `;
@@ -215,7 +215,7 @@
             for (let cls in classesMap) {
                 let theme = classThemes[index % classThemes.length];
                 html += `
-                    <div onclick="initAudio(); selectClass('${cls}')" class="bg-white aspect-square rounded-3xl border border-slate-100 shadow-sm active:scale-95 transition-all flex flex-col items-center justify-center p-4 cursor-pointer group ${theme.hoverBorder} hover:shadow-md">
+                    <div onclick="initAudio(); selectClass('${cls}')" class="bg-white/90 backdrop-blur-sm aspect-square rounded-3xl border border-emerald-100/80 shadow-sm active:scale-95 transition-all flex flex-col items-center justify-center p-4 cursor-pointer group ${theme.hoverBorder} hover:shadow-md hover:bg-white">
                         <div class="w-14 h-14 ${theme.bg} ${theme.text} rounded-2xl flex items-center justify-center font-bold mb-3 ${theme.hoverBg} group-hover:text-white transition-colors shadow-inner">
                             ${theme.icon}
                         </div>
@@ -237,35 +237,35 @@
         function renderClassHubView() {
             currentView = 'classHub';
             document.getElementById('app-title').innerText = selectedClass;
-            document.getElementById('app-subtitle').innerText = "Choose section";
+            document.getElementById('app-subtitle').innerText = "Choose Learning Module";
             document.getElementById('header-action').innerHTML = `
-                <button onclick="renderClassesView()" class="text-xs font-semibold px-3 py-1.5 bg-slate-100 text-slate-600 rounded-xl active:scale-95 transition-transform">Back</button>
+                <button onclick="renderClassesView()" class="text-xs font-semibold px-3.5 py-1.5 bg-emerald-50 text-emerald-700 rounded-xl active:scale-95 transition-transform border border-emerald-200/50">Back</button>
             `;
 
             let html = `
                 <div class="mb-6 text-center">
-                    <h2 class="text-lg font-bold text-slate-900">Select Section</h2>
-                    <p class="text-xs text-slate-500 mt-0.5">Choose between video lessons or mock test quizzes</p>
+                    <h2 class="text-lg font-bold text-slate-900 tracking-tight">Select Section</h2>
+                    <p class="text-xs text-slate-500 mt-0.5">Explore video lectures or practice chapter tests</p>
                 </div>
 
                 <div class="space-y-4">
-                    <div onclick="selectVideoLessonsHub()" class="bg-white p-5 rounded-3xl border border-slate-100 shadow-sm active:scale-[0.98] transition-all flex items-center space-x-4 cursor-pointer group hover:border-brand-300 hover:shadow-md">
-                        <div class="w-14 h-14 bg-rose-50 text-rose-600 rounded-2xl flex items-center justify-center font-bold group-hover:bg-rose-600 group-hover:text-white transition-colors flex-shrink-0 shadow-inner">
+                    <div onclick="selectVideoLessonsHub()" class="bg-white/90 backdrop-blur-sm p-5 rounded-3xl border border-emerald-100/80 shadow-sm active:scale-[0.98] transition-all flex items-center space-x-4 cursor-pointer group hover:border-brand-300 hover:shadow-md hover:bg-white">
+                        <div class="w-14 h-14 bg-emerald-50 text-brand-600 rounded-2xl flex items-center justify-center font-bold group-hover:bg-brand-600 group-hover:text-white transition-colors flex-shrink-0 shadow-inner">
                             <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                         </div>
                         <div>
                             <h3 class="font-bold text-slate-900 text-base">Video Lessons</h3>
-                            <p class="text-xs text-slate-500 mt-0.5">Watch all video lessons titles in landscape mode</p>
+                            <p class="text-xs text-slate-500 mt-0.5">Browse ordered chapters & video lectures</p>
                         </div>
                     </div>
 
-                    <div onclick="renderSetsView()" class="bg-white p-5 rounded-3xl border border-slate-100 shadow-sm active:scale-[0.98] transition-all flex items-center space-x-4 cursor-pointer group hover:border-brand-300 hover:shadow-md">
-                        <div class="w-14 h-14 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center font-bold group-hover:bg-emerald-600 group-hover:text-white transition-colors flex-shrink-0 shadow-inner">
+                    <div onclick="renderSetsView()" class="bg-white/90 backdrop-blur-sm p-5 rounded-3xl border border-emerald-100/80 shadow-sm active:scale-[0.98] transition-all flex items-center space-x-4 cursor-pointer group hover:border-brand-300 hover:shadow-md hover:bg-white">
+                        <div class="w-14 h-14 bg-teal-50 text-teal-600 rounded-2xl flex items-center justify-center font-bold group-hover:bg-teal-600 group-hover:text-white transition-colors flex-shrink-0 shadow-inner">
                             <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path></svg>
                         </div>
                         <div>
                             <h3 class="font-bold text-slate-900 text-base">Mock Test</h3>
-                            <p class="text-xs text-slate-500 mt-0.5">Practice quiz sets with performance tracking</p>
+                            <p class="text-xs text-slate-500 mt-0.5">Practice multiple-choice question sets</p>
                         </div>
                     </div>
                 </div>
@@ -285,7 +285,7 @@
             document.getElementById('app-title').innerText = `${selectedClass} - Videos`;
             document.getElementById('app-subtitle').innerText = `Total Lessons: ${videoLessonsList.length}`;
             document.getElementById('header-action').innerHTML = `
-                <button onclick="renderClassHubView()" class="text-xs font-semibold px-3 py-1.5 bg-slate-100 text-slate-600 rounded-xl active:scale-95">Back</button>
+                <button onclick="renderClassHubView()" class="text-xs font-semibold px-3.5 py-1.5 bg-emerald-50 text-emerald-700 rounded-xl active:scale-95 border border-emerald-200/50">Back</button>
             `;
 
             let totalPages = Math.ceil(videoLessonsList.length / videosPerPage) || 1;
@@ -298,7 +298,7 @@
 
             let html = `
                 <div class="mb-4 text-center">
-                    <h2 class="text-lg font-bold text-slate-900">Video Lessons List</h2>
+                    <h2 class="text-lg font-bold text-slate-900 tracking-tight">Video Lessons List</h2>
                     <p class="text-xs text-slate-500 mt-0.5">Tap title to play in automatic fullscreen landscape</p>
                 </div>
                 <div class="space-y-3 mb-6">
@@ -306,7 +306,7 @@
 
             if (pageLessons.length === 0) {
                 html += `
-                    <div class="text-center py-12 bg-white rounded-3xl border border-slate-100 p-6">
+                    <div class="text-center py-12 bg-white/90 rounded-3xl border border-emerald-100/80 p-6 shadow-sm">
                         <p class="text-xs text-slate-500">No video lessons available for this class.</p>
                     </div>
                 `;
@@ -314,13 +314,13 @@
                 pageLessons.forEach((lesson, pIdx) => {
                     let actualIndex = startIndex + pIdx;
                     html += `
-                        <div onclick="playVideoLessonAtIndex(${actualIndex})" class="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm active:scale-[0.98] transition-all flex items-center space-x-3 cursor-pointer group hover:border-brand-300">
-                            <div class="w-9 h-9 bg-rose-50 text-rose-600 rounded-xl flex items-center justify-center font-bold text-xs flex-shrink-0 group-hover:bg-rose-600 group-hover:text-white transition-colors">
+                        <div onclick="playVideoLessonAtIndex(${actualIndex})" class="bg-white/90 backdrop-blur-sm p-4 rounded-2xl border border-emerald-100/80 shadow-sm active:scale-[0.98] transition-all flex items-center space-x-3 cursor-pointer group hover:border-brand-300 hover:bg-white">
+                            <div class="w-10 h-10 bg-emerald-50 text-brand-600 rounded-xl flex items-center justify-center font-bold text-xs flex-shrink-0 group-hover:bg-brand-600 group-hover:text-white transition-colors shadow-inner">
                                 ${actualIndex + 1}
                             </div>
                             <div class="flex-1">
                                 <h3 class="font-bold text-slate-900 text-sm leading-snug">${lesson['Questions']}</h3>
-                                <p class="text-[10px] text-slate-400 mt-0.5">Lesson ${actualIndex + 1} of ${videoLessonsList.length}</p>
+                                <p class="text-[10px] text-slate-400 mt-0.5 font-medium">Lesson ${actualIndex + 1} of ${videoLessonsList.length}</p>
                             </div>
                             <svg class="w-5 h-5 text-slate-400 group-hover:text-brand-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path></svg>
                         </div>
@@ -333,12 +333,12 @@
             // Back & Forward Pagination Controls
             if (totalPages > 1) {
                 html += `
-                    <div class="flex items-center justify-between bg-white p-3 rounded-2xl border border-slate-100 shadow-sm">
-                        <button onclick="changeVideoPage(-1)" ${videoListPage === 0 ? 'disabled class="opacity-40 cursor-not-allowed px-4 py-2 bg-slate-100 text-slate-500 font-semibold rounded-xl text-xs"' : 'class="px-4 py-2 bg-slate-100 text-slate-700 font-semibold rounded-xl text-xs active:scale-95 transition-transform"'}>
+                    <div class="flex items-center justify-between bg-white/90 backdrop-blur-sm p-3 rounded-2xl border border-emerald-100/80 shadow-sm">
+                        <button onclick="changeVideoPage(-1)" ${videoListPage === 0 ? 'disabled class="opacity-40 cursor-not-allowed px-4 py-2 bg-slate-100 text-slate-400 font-semibold rounded-xl text-xs"' : 'class="px-4 py-2 bg-emerald-50 text-brand-700 font-semibold rounded-xl text-xs active:scale-95 transition-transform border border-emerald-200/50"'}>
                             &larr; Back
                         </button>
                         <span class="text-xs font-bold text-slate-600">Page ${videoListPage + 1} of ${totalPages}</span>
-                        <button onclick="changeVideoPage(1)" ${videoListPage >= totalPages - 1 ? 'disabled class="opacity-40 cursor-not-allowed px-4 py-2 bg-slate-100 text-slate-500 font-semibold rounded-xl text-xs"' : 'class="px-4 py-2 bg-brand-600 text-white font-semibold rounded-xl text-xs active:scale-95 transition-transform"'}>
+                        <button onclick="changeVideoPage(1)" ${videoListPage >= totalPages - 1 ? 'disabled class="opacity-40 cursor-not-allowed px-4 py-2 bg-slate-100 text-slate-400 font-semibold rounded-xl text-xs"' : 'class="px-4 py-2 bg-brand-600 text-white font-semibold rounded-xl text-xs shadow-md shadow-brand-500/25 active:scale-95 transition-transform"'}>
                             Forward &rarr;
                         </button>
                     </div>
@@ -357,7 +357,6 @@
             currentVideoIndex = index;
             renderVideoPlayerView();
 
-            // Automatically trigger fullscreen and landscape orientation lock on mobile devices
             let playerElement = document.getElementById('video-fullscreen-wrapper');
             if (playerElement) {
                 if (playerElement.requestFullscreen) {
@@ -380,17 +379,17 @@
             document.getElementById('app-title').innerText = `Lesson ${currentVideoIndex + 1}/${videoLessonsList.length}`;
             document.getElementById('app-subtitle').innerText = "Playing in Landscape Mode";
             document.getElementById('header-action').innerHTML = `
-                <button onclick="renderVideoSerialListView()" class="text-xs font-semibold px-3 py-1.5 bg-slate-100 text-slate-600 rounded-xl active:scale-95">Lessons List</button>
+                <button onclick="renderVideoSerialListView()" class="text-xs font-semibold px-3.5 py-1.5 bg-emerald-50 text-emerald-700 rounded-xl active:scale-95 border border-emerald-200/50">Lessons List</button>
             `;
 
             let html = `
                 <div class="mb-3 text-xs text-slate-500 flex justify-between items-center px-1">
-                    <span class="font-semibold text-rose-600">${currentLesson['Category'] || 'Video Lesson'}</span>
-                    <span class="bg-rose-50 text-rose-700 font-bold px-2 py-0.5 rounded-full text-[10px]">Locked Controls</span>
+                    <span class="font-semibold text-brand-600">${currentLesson['Category'] || 'Video Lesson'}</span>
+                    <span class="bg-emerald-50 text-brand-700 font-bold px-2.5 py-0.5 rounded-full text-[10px] border border-emerald-200/50">Locked Controls</span>
                 </div>
 
                 <!-- Video Title Card -->
-                <div class="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm mb-4">
+                <div class="bg-white/90 backdrop-blur-sm p-4 rounded-2xl border border-emerald-100/80 shadow-sm mb-4">
                     <h3 class="font-bold text-slate-900 text-base leading-snug">${currentLesson['Questions']}</h3>
                 </div>
 
@@ -418,9 +417,9 @@
                     </div>
                 </div>
 
-                <!-- Action Controls (Close & Next Lesson Options) -->
+                <!-- Action Controls -->
                 <div class="space-y-3">
-                    <button onclick="renderVideoSerialListView()" class="w-full bg-slate-100 text-slate-700 font-semibold py-3.5 rounded-2xl text-sm active:scale-[0.98] transition-transform">
+                    <button onclick="renderVideoSerialListView()" class="w-full bg-white/90 border border-emerald-100 text-slate-700 font-semibold py-3.5 rounded-2xl text-sm shadow-sm active:scale-[0.98] transition-transform">
                         Close Video & Back to List
                     </button>
                     ${currentVideoIndex < videoLessonsList.length - 1 ? `
@@ -428,8 +427,8 @@
                             Next Lesson
                         </button>
                     ` : `
-                        <div class="bg-emerald-50 border border-emerald-200 p-3 rounded-2xl text-center text-xs font-semibold text-emerald-800">
-                            You have completed all lessons in this category!
+                        <div class="bg-emerald-50 border border-emerald-200 p-3.5 rounded-2xl text-center text-xs font-semibold text-emerald-800">
+                            You have completed all lessons in this section!
                         </div>
                     `}
                 </div>
@@ -516,7 +515,7 @@
             document.getElementById('app-title').innerText = `${selectedClass} - Mock Test`;
             document.getElementById('app-subtitle').innerText = "Select test set";
             document.getElementById('header-action').innerHTML = `
-                <button onclick="renderClassHubView()" class="text-xs font-semibold px-3 py-1.5 bg-slate-100 text-slate-600 rounded-xl active:scale-95 transition-transform">Back</button>
+                <button onclick="renderClassHubView()" class="text-xs font-semibold px-3.5 py-1.5 bg-emerald-50 text-emerald-700 rounded-xl active:scale-95 border border-emerald-200/50">Back</button>
             `;
 
             let setsMap = {};
@@ -528,16 +527,13 @@
 
             const setThemes = [
                 { bg: 'bg-emerald-50', text: 'text-emerald-600', hoverBg: 'group-hover:bg-emerald-600', hoverBorder: 'hover:border-emerald-300', subText: 'text-emerald-600' },
-                { bg: 'bg-blue-50', text: 'text-blue-600', hoverBg: 'group-hover:bg-blue-600', hoverBorder: 'hover:border-blue-300', subText: 'text-blue-600' },
-                { bg: 'bg-amber-50', text: 'text-amber-600', hoverBg: 'group-hover:bg-amber-600', hoverBorder: 'hover:border-amber-300', subText: 'text-amber-600' },
-                { bg: 'bg-purple-50', text: 'text-purple-600', hoverBg: 'group-hover:bg-purple-600', hoverBorder: 'hover:border-purple-300', subText: 'text-purple-600' },
-                { bg: 'bg-rose-50', text: 'text-rose-600', hoverBg: 'group-hover:bg-rose-600', hoverBorder: 'hover:border-rose-300', subText: 'text-rose-600' },
+                { bg: 'bg-teal-50', text: 'text-teal-600', hoverBg: 'group-hover:bg-teal-600', hoverBorder: 'hover:border-teal-300', subText: 'text-teal-600' },
                 { bg: 'bg-cyan-50', text: 'text-cyan-600', hoverBg: 'group-hover:bg-cyan-600', hoverBorder: 'hover:border-cyan-300', subText: 'text-cyan-600' }
             ];
 
             let html = `
                 <div class="mb-5 text-center">
-                    <h2 class="text-lg font-bold text-slate-900">Available Mock Test Sets</h2>
+                    <h2 class="text-lg font-bold text-slate-900 tracking-tight">Available Mock Test Sets</h2>
                     <p class="text-xs text-slate-500 mt-0.5">Select a set to begin practice</p>
                 </div>
                 <div class="grid grid-cols-2 gap-4">
@@ -552,7 +548,7 @@
                 let theme = setThemes[index % setThemes.length];
 
                 html += `
-                    <div onclick="selectSet('${rawSetKey}')" class="bg-white aspect-square rounded-3xl border border-slate-100 shadow-sm active:scale-95 transition-all flex flex-col items-center justify-center p-3 cursor-pointer group ${theme.hoverBorder} hover:shadow-md relative overflow-hidden">
+                    <div onclick="selectSet('${rawSetKey}')" class="bg-white/90 backdrop-blur-sm aspect-square rounded-3xl border border-emerald-100/80 shadow-sm active:scale-95 transition-all flex flex-col items-center justify-center p-3 cursor-pointer group ${theme.hoverBorder} hover:shadow-md hover:bg-white relative overflow-hidden">
                         <div class="w-12 h-12 ${theme.bg} ${theme.text} rounded-2xl flex items-center justify-center font-bold text-lg mb-2 ${theme.hoverBg} group-hover:text-white transition-colors shadow-inner">
                             ${cleanNum}
                         </div>
@@ -577,20 +573,20 @@
             document.getElementById('app-title').innerText = `Set ${displaySetNum} (${selectedClass})`;
             document.getElementById('app-subtitle').innerText = "Enter student name";
             document.getElementById('header-action').innerHTML = `
-                <button onclick="renderSetsView()" class="text-xs font-semibold px-3 py-1.5 bg-slate-100 text-slate-600 rounded-xl active:scale-95 transition-transform">Back</button>
+                <button onclick="renderSetsView()" class="text-xs font-semibold px-3.5 py-1.5 bg-emerald-50 text-emerald-700 rounded-xl active:scale-95 border border-emerald-200/50">Back</button>
             `;
 
             let html = `
-                <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm mt-4">
+                <div class="bg-white/90 backdrop-blur-sm p-6 rounded-3xl border border-emerald-100/80 shadow-sm mt-4">
                     <div class="text-center mb-6">
-                        <h2 class="text-lg font-bold text-slate-900">Enter Your Name</h2>
-                        <p class="text-xs text-slate-500 mt-1">Please type your name to start this mock test.</p>
+                        <h2 class="text-lg font-bold text-slate-900 tracking-tight">Enter Your Name</h2>
+                        <p class="text-xs text-slate-500 mt-1">Please type your full name to start the mock test.</p>
                     </div>
 
                     <div class="space-y-4">
                         <div>
-                            <label class="block text-xs font-semibold text-slate-600 mb-1.5">FULL NAME</label>
-                            <input type="text" id="student-name-input" value="${studentName}" oninput="this.value = this.value.toUpperCase(); studentName = this.value;" placeholder="ENTER YOUR FULL NAME" class="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-bold text-slate-900 uppercase focus:outline-none focus:border-brand-500 focus:bg-white transition-colors" autocomplete="off">
+                            <label class="block text-xs font-semibold text-slate-600 mb-1.5 tracking-wide">FULL NAME</label>
+                            <input type="text" id="student-name-input" value="${studentName}" oninput="this.value = this.value.toUpperCase(); studentName = this.value;" placeholder="ENTER YOUR FULL NAME" class="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-bold text-slate-900 uppercase focus:outline-none focus:border-brand-500 focus:bg-white transition-colors shadow-inner" autocomplete="off">
                         </div>
 
                         <button onclick="startQuiz()" class="w-full bg-brand-600 text-white font-semibold py-3.5 rounded-2xl text-sm shadow-lg shadow-brand-500/25 active:scale-[0.98] transition-transform">
@@ -673,23 +669,23 @@
             document.getElementById('app-title').innerText = `Set ${displaySetNum} (${currentQuestionIndex + 1}/${currentQuestions.length})`;
             document.getElementById('app-subtitle').innerText = studentName;
             document.getElementById('header-action').innerHTML = `
-                <button onclick="if(confirm('Quit test?')) renderSetsView();" class="text-xs font-semibold px-3 py-1.5 bg-rose-50 text-rose-600 rounded-xl">Quit</button>
+                <button onclick="if(confirm('Quit test?')) renderSetsView();" class="text-xs font-semibold px-3 py-1.5 bg-rose-50 text-rose-600 rounded-xl border border-rose-200/50">Quit</button>
             `;
 
             let html = `
                 <div class="mb-3 text-xs text-slate-500 flex justify-between items-center px-1">
                     <span>Mock Test</span>
                     <div class="flex items-center space-x-2">
-                        ${currentStreak > 1 ? `<span class="bg-amber-100 text-amber-800 font-bold px-2 py-0.5 rounded-full text-[10px] animate-pulse-once">Streak: ${currentStreak}</span>` : ''}
+                        ${currentStreak > 1 ? `<span class="bg-amber-100 text-amber-800 font-bold px-2.5 py-0.5 rounded-full text-[10px] animate-pulse-once">Streak: ${currentStreak}</span>` : ''}
                         <span class="font-semibold text-brand-600">${selectedClass}</span>
                     </div>
                 </div>
 
-                <div class="w-full bg-slate-200 h-1.5 rounded-full mb-5 overflow-hidden">
-                    <div class="bg-brand-600 h-full transition-all duration-300" style="width: ${progress}%"></div>
+                <div class="w-full bg-slate-200/70 h-1.5 rounded-full mb-5 overflow-hidden shadow-inner">
+                    <div class="bg-brand-600 h-full transition-all duration-300 rounded-full" style="width: ${progress}%"></div>
                 </div>
 
-                <div class="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm mb-4">
+                <div class="bg-white/90 backdrop-blur-sm p-5 rounded-2xl border border-emerald-100/80 shadow-sm mb-4">
                     <span class="text-[11px] font-bold text-brand-600 uppercase tracking-wider">Question ${currentQuestionIndex + 1}</span>
                     <h3 class="font-semibold text-slate-900 text-base mt-1.5 leading-snug">${q.questionText}</h3>
                 </div>
@@ -701,12 +697,12 @@
                 let optText = q.options[key];
                 let isSelected = currentAnswer === key;
                 let btnStyle = isSelected 
-                    ? "bg-brand-50 border-brand-500 text-brand-900 font-medium" 
-                    : "bg-white border-slate-100 text-slate-700";
+                    ? "bg-emerald-50 border-emerald-500 text-brand-900 font-medium ring-1 ring-emerald-500/30" 
+                    : "bg-white/90 border-emerald-100/80 text-slate-700 hover:bg-white";
 
                 html += `
                     <button onclick="handleOptionClick('${key}')" class="w-full text-left p-4 rounded-2xl border ${btnStyle} shadow-sm active:scale-[0.99] transition-all flex items-center space-x-3">
-                        <span class="w-7 h-7 rounded-lg bg-slate-100 flex items-center justify-center text-xs font-bold text-slate-600 flex-shrink-0">${key}</span>
+                        <span class="w-7 h-7 rounded-xl bg-slate-100 flex items-center justify-center text-xs font-bold text-slate-600 flex-shrink-0 shadow-inner">${key}</span>
                         <span class="text-sm flex-1">${optText}</span>
                     </button>
                 `;
@@ -716,7 +712,7 @@
 
             html += `
                 <div class="flex space-x-3">
-                    ${currentQuestionIndex > 0 ? `<button onclick="prevQuestion()" class="flex-1 bg-white border border-slate-200 text-slate-700 font-semibold py-3.5 rounded-2xl text-sm active:scale-[0.98] transition-transform">Prev</button>` : ''}
+                    ${currentQuestionIndex > 0 ? `<button onclick="prevQuestion()" class="flex-1 bg-white/90 border border-slate-200 text-slate-700 font-semibold py-3.5 rounded-2xl text-sm shadow-sm active:scale-[0.98] transition-transform">Prev</button>` : ''}
                     
                     <button onclick="nextQuestion()" class="flex-1 bg-brand-600 text-white font-semibold py-3.5 rounded-2xl text-sm shadow-lg shadow-brand-500/25 active:scale-[0.98] transition-transform">
                         ${currentQuestionIndex === currentQuestions.length - 1 ? 'Submit & Review' : 'Next'}
@@ -768,7 +764,7 @@
             document.getElementById('app-title').innerText = "Test Results & Review";
             document.getElementById('app-subtitle').innerText = studentName;
             document.getElementById('header-action').innerHTML = `
-                <button onclick="renderSetsView()" class="text-xs font-semibold px-3 py-1.5 bg-slate-100 text-slate-600 rounded-xl">Sets</button>
+                <button onclick="renderSetsView()" class="text-xs font-semibold px-3.5 py-1.5 bg-emerald-50 text-emerald-700 rounded-xl border border-emerald-200/50">Sets</button>
             `;
 
             let total = currentQuestions.length;
@@ -797,21 +793,21 @@
             else badgeText = "Sketching Potential";
 
             let html = `
-                <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm text-center mb-6 relative">
-                    ${isNewBest ? '<span class="absolute top-4 right-4 bg-amber-100 text-amber-800 text-[10px] font-bold px-2.5 py-1 rounded-full">New Personal Best</span>' : ''}
-                    <span class="inline-block text-[11px] font-bold bg-brand-50 text-brand-700 px-3 py-1 rounded-full mb-3">${studentName}</span>
-                    <div class="w-16 h-16 bg-brand-50 text-brand-600 rounded-2xl flex items-center justify-center text-xl mx-auto mb-3 font-bold">
+                <div class="bg-white/90 backdrop-blur-sm p-6 rounded-3xl border border-emerald-100/80 shadow-sm text-center mb-6 relative">
+                    ${isNewBest ? '<span class="absolute top-4 right-4 bg-amber-100 text-amber-800 text-[10px] font-bold px-2.5 py-1 rounded-full border border-amber-200/50">New Personal Best</span>' : ''}
+                    <span class="inline-block text-[11px] font-bold bg-emerald-50 text-brand-700 px-3 py-1 rounded-full mb-3 border border-emerald-200/50">${studentName}</span>
+                    <div class="w-16 h-16 bg-emerald-50 text-brand-600 rounded-2xl flex items-center justify-center text-xl mx-auto mb-3 font-bold shadow-inner">
                         ${percentage}%
                     </div>
-                    <h2 class="text-xl font-bold text-slate-900">${badgeText}</h2>
+                    <h2 class="text-xl font-bold text-slate-900 tracking-tight">${badgeText}</h2>
                     <p class="text-xs text-slate-500 mt-1">${selectedClass} | Set ${cleanNum}</p>
 
-                    <div class="grid grid-cols-2 gap-3 mt-6 pt-6 border-t border-slate-100">
-                        <div class="bg-slate-50 p-4 rounded-2xl">
+                    <div class="grid grid-cols-2 gap-3 mt-6 pt-6 border-t border-emerald-100/60">
+                        <div class="bg-slate-50/80 p-4 rounded-2xl border border-emerald-100/40">
                             <span class="text-xs text-slate-400 block font-semibold uppercase tracking-wider mb-1">Total Marks</span>
-                            <span class="text-2xl font-black text-emerald-600">${score} <span class="text-sm font-bold text-slate-400">/ ${total}</span></span>
+                            <span class="text-2xl font-black text-brand-600">${score} <span class="text-sm font-bold text-slate-400">/ ${total}</span></span>
                         </div>
-                        <div class="bg-slate-50 p-4 rounded-2xl">
+                        <div class="bg-slate-50/80 p-4 rounded-2xl border border-emerald-100/40">
                             <span class="text-xs text-slate-400 block font-semibold uppercase tracking-wider mb-1">Max Streak</span>
                             <span class="text-2xl font-black text-amber-500">${maxStreakAchieved}</span>
                         </div>
@@ -830,7 +826,7 @@
             if (incorrectQuestions.length > 0) {
                 html += `
                     <div class="mb-4">
-                        <h3 class="font-bold text-slate-900 text-base">Incorrect Answers Review</h3>
+                        <h3 class="font-bold text-slate-900 text-base tracking-tight">Incorrect Answers Review</h3>
                         <p class="text-xs text-slate-500 mt-0.5">Review the questions you missed below:</p>
                     </div>
                     <div class="space-y-4 mb-6">
@@ -843,18 +839,18 @@
                     let userAnsText = userAns ? q.options[userAns] : 'Not Answered';
 
                     html += `
-                        <div class="bg-white p-4 rounded-2xl border border-rose-200 bg-rose-50/20 shadow-sm">
+                        <div class="bg-white/90 backdrop-blur-sm p-4 rounded-2xl border border-rose-200 bg-rose-50/20 shadow-sm">
                             <div class="flex items-start justify-between mb-2">
                                 <span class="text-[11px] font-bold text-slate-400">Q${idx + 1}</span>
-                                <span class="text-[10px] font-bold bg-rose-100 text-rose-700 px-2 py-0.5 rounded-full">Incorrect</span>
+                                <span class="text-[10px] font-bold bg-rose-100 text-rose-700 px-2 py-0.5 rounded-full border border-rose-200/50">Incorrect</span>
                             </div>
                             <h4 class="font-semibold text-slate-900 text-sm mb-3">${q.questionText}</h4>
                             
                             <div class="space-y-1.5 text-xs">
-                                <div class="p-2 rounded-xl bg-slate-50 text-slate-600">
+                                <div class="p-2.5 rounded-xl bg-slate-50 text-slate-600 border border-slate-100">
                                     <span class="font-semibold">Your Answer:</span> ${userAns ? userAns + ': ' + userAnsText : '<span class="italic text-slate-400">Not Answered</span>'}
                                 </div>
-                                <div class="p-2 rounded-xl bg-emerald-50 text-emerald-800">
+                                <div class="p-2.5 rounded-xl bg-emerald-50 text-emerald-800 border border-emerald-100">
                                     <span class="font-semibold">Correct Answer:</span> ${correctAnsKey}: ${correctAnsText}
                                 </div>
                             </div>
@@ -864,9 +860,9 @@
                 html += `</div>`;
             } else {
                 html += `
-                    <div class="bg-emerald-50 border border-emerald-200 p-5 rounded-3xl text-center mb-6">
+                    <div class="bg-emerald-50/90 border border-emerald-200 p-5 rounded-3xl text-center mb-6 shadow-sm">
                         <h3 class="font-bold text-emerald-900 text-sm">Flawless Performance</h3>
-                        <p class="text-xs text-emerald-700 mt-1">You answered every question correctly. Amazing job!</p>
+                        <p class="text-xs text-emerald-700 mt-1">You answered every single question correctly. Amazing job!</p>
                     </div>
                 `;
             }
@@ -876,7 +872,7 @@
                     <button onclick="renderNameInputView()" class="w-full bg-brand-600 text-white font-semibold py-3.5 rounded-2xl text-sm shadow-lg shadow-brand-500/25 active:scale-[0.98] transition-transform">
                         Retake Test
                     </button>
-                    <button onclick="renderSetsView()" class="w-full bg-white border border-slate-200 text-slate-700 font-semibold py-3.5 rounded-2xl text-sm active:scale-[0.98] transition-transform">
+                    <button onclick="renderSetsView()" class="w-full bg-white/90 border border-slate-200 text-slate-700 font-semibold py-3.5 rounded-2xl text-sm shadow-sm active:scale-[0.98] transition-transform">
                         Choose Another Set
                     </button>
                 </div>
