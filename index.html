@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Mock Test Fine Arts (Painting)</title>
+    <title>Fine Arts Theory - Video Lessons & Mock Test</title>
     <!-- Google Fonts & Tailwind CSS -->
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
@@ -38,8 +38,8 @@
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
             </div>
             <div>
-                <h1 id="app-title" class="font-bold text-sm tracking-tight text-slate-900 leading-tight">Mock Test Fine Arts (Painting)</h1>
-                <p id="app-subtitle" class="text-[10px] font-medium text-brand-600">Session 2026-27</p>
+                <h1 id="app-title" class="font-bold text-sm tracking-tight text-slate-900 leading-tight">Fine Arts Theory</h1>
+                <p id="app-subtitle" class="text-[10px] font-medium text-brand-600">Video Lessons & Mock Test</p>
             </div>
         </div>
         <div id="header-action"></div>
@@ -89,6 +89,8 @@
         // Video Lesson State variables
         let videoLessonsList = [];
         let currentVideoIndex = 0;
+        let videoListPage = 0;
+        let videosPerPage = 8;
         let ytPlayer = null;
         let currentQuality = 'default';
 
@@ -182,7 +184,8 @@
         // View 1: Classes Grid Screen
         function renderClassesView() {
             currentView = 'classes';
-            document.getElementById('app-title').innerText = "Mock Test Fine Arts (Painting)";
+            document.getElementById('app-title').innerText = "Fine Arts Theory";
+            document.getElementById('app-subtitle').innerText = "Video Lessons & Mock Test";
             document.getElementById('app-subtitle').classList.remove('hidden');
             document.getElementById('header-action').innerHTML = '';
 
@@ -230,29 +233,29 @@
             renderClassHubView();
         }
 
-        // View 1.5: Class Hub
+        // View 1.5: Class Hub (Shows Video Lessons & Mock Test Options)
         function renderClassHubView() {
             currentView = 'classHub';
             document.getElementById('app-title').innerText = selectedClass;
-            document.getElementById('app-subtitle').classList.add('hidden');
+            document.getElementById('app-subtitle').innerText = "Choose section";
             document.getElementById('header-action').innerHTML = `
                 <button onclick="renderClassesView()" class="text-xs font-semibold px-3 py-1.5 bg-slate-100 text-slate-600 rounded-xl active:scale-95 transition-transform">Back</button>
             `;
 
             let html = `
                 <div class="mb-6 text-center">
-                    <h2 class="text-lg font-bold text-slate-900">Choose Section</h2>
-                    <p class="text-xs text-slate-500 mt-0.5">Explore video lessons or practice quiz sets</p>
+                    <h2 class="text-lg font-bold text-slate-900">Select Section</h2>
+                    <p class="text-xs text-slate-500 mt-0.5">Choose between video lessons or mock test quizzes</p>
                 </div>
 
                 <div class="space-y-4">
-                    <div onclick="renderVideoCategoriesView()" class="bg-white p-5 rounded-3xl border border-slate-100 shadow-sm active:scale-[0.98] transition-all flex items-center space-x-4 cursor-pointer group hover:border-brand-300 hover:shadow-md">
+                    <div onclick="selectVideoLessonsHub()" class="bg-white p-5 rounded-3xl border border-slate-100 shadow-sm active:scale-[0.98] transition-all flex items-center space-x-4 cursor-pointer group hover:border-brand-300 hover:shadow-md">
                         <div class="w-14 h-14 bg-rose-50 text-rose-600 rounded-2xl flex items-center justify-center font-bold group-hover:bg-rose-600 group-hover:text-white transition-colors flex-shrink-0 shadow-inner">
                             <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                         </div>
                         <div>
                             <h3 class="font-bold text-slate-900 text-base">Video Lessons</h3>
-                            <p class="text-xs text-slate-500 mt-0.5">Watch video lectures and tutorials</p>
+                            <p class="text-xs text-slate-500 mt-0.5">Watch all video lessons titles in landscape mode</p>
                         </div>
                     </div>
 
@@ -261,8 +264,8 @@
                             <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path></svg>
                         </div>
                         <div>
-                            <h3 class="font-bold text-slate-900 text-base">Quiz Sets</h3>
-                            <p class="text-xs text-slate-500 mt-0.5">Test your knowledge with mock sets</p>
+                            <h3 class="font-bold text-slate-900 text-base">Mock Test</h3>
+                            <p class="text-xs text-slate-500 mt-0.5">Practice quiz sets with performance tracking</p>
                         </div>
                     </div>
                 </div>
@@ -271,105 +274,90 @@
         }
 
         // --- VIDEO LESSONS VIEWS ---
-        function renderVideoCategoriesView() {
-            currentView = 'videoCategories';
-            document.getElementById('app-title').innerText = `${selectedClass} - Videos`;
-            document.getElementById('app-subtitle').classList.add('hidden');
-            document.getElementById('header-action').innerHTML = `
-                <button onclick="renderClassHubView()" class="text-xs font-semibold px-3 py-1.5 bg-slate-100 text-slate-600 rounded-xl active:scale-95 transition-transform">Back</button>
-            `;
-
-            let categoriesMap = {};
-            globalData.filter(r => r['Class'] === selectedClass && r['Option A'] && r['Option A'].includes('http')).forEach(row => {
-                let cat = row['Category'] || 'General Videos';
-                if (!categoriesMap[cat]) categoriesMap[cat] = 0;
-                categoriesMap[cat]++;
-            });
-
-            let html = `
-                <div class="mb-5 text-center">
-                    <h2 class="text-lg font-bold text-slate-900">Video Categories</h2>
-                    <p class="text-xs text-slate-500 mt-0.5">Select a category to view serial lessons</p>
-                </div>
-                <div class="space-y-3">
-            `;
-
-            let hasVideos = false;
-            for (let cat in categoriesMap) {
-                hasVideos = true;
-                html += `
-                    <div onclick="selectVideoCategory('${cat}')" class="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm active:scale-[0.98] transition-all flex items-center justify-between cursor-pointer group hover:border-brand-300">
-                        <div class="flex items-center space-x-3">
-                            <div class="w-10 h-10 bg-rose-50 text-rose-600 rounded-xl flex items-center justify-center font-bold group-hover:bg-rose-600 group-hover:text-white transition-colors">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path></svg>
-                            </div>
-                            <div>
-                                <h3 class="font-bold text-slate-900 text-sm">${cat}</h3>
-                                <p class="text-[11px] text-slate-500">${categoriesMap[cat]} Lessons</p>
-                            </div>
-                        </div>
-                        <svg class="w-5 h-5 text-slate-400 group-hover:text-brand-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
-                    </div>
-                `;
-            }
-
-            if (!hasVideos) {
-                html += `
-                    <div class="text-center py-12 bg-white rounded-3xl border border-slate-100 p-6">
-                        <p class="text-xs text-slate-500">No video lessons available for this class yet.</p>
-                    </div>
-                `;
-            }
-
-            html += `</div>`;
-            document.getElementById('view-container').innerHTML = html;
+        function selectVideoLessonsHub() {
+            videoLessonsList = globalData.filter(r => r['Class'] === selectedClass && r['Option A'] && r['Option A'].includes('http'));
+            videoListPage = 0;
+            renderVideoSerialListView();
         }
 
-        function selectVideoCategory(category) {
-            videoLessonsList = globalData.filter(r => r['Class'] === selectedClass && (r['Category'] || 'General Videos') === category && r['Option A'] && r['Option A'].includes('http'));
-            renderVideoSerialListView(category);
-        }
-
-        function renderVideoSerialListView(category) {
+        function renderVideoSerialListView() {
             currentView = 'videoSerialList';
-            document.getElementById('app-title').innerText = category;
-            document.getElementById('app-subtitle').classList.add('hidden');
+            document.getElementById('app-title').innerText = `${selectedClass} - Videos`;
+            document.getElementById('app-subtitle').innerText = `Total Lessons: ${videoLessonsList.length}`;
             document.getElementById('header-action').innerHTML = `
-                <button onclick="renderVideoCategoriesView()" class="text-xs font-semibold px-3 py-1.5 bg-slate-100 text-slate-600 rounded-xl active:scale-95">Categories</button>
+                <button onclick="renderClassHubView()" class="text-xs font-semibold px-3 py-1.5 bg-slate-100 text-slate-600 rounded-xl active:scale-95">Back</button>
             `;
+
+            let totalPages = Math.ceil(videoLessonsList.length / videosPerPage) || 1;
+            if (videoListPage >= totalPages) videoListPage = totalPages - 1;
+            if (videoListPage < 0) videoListPage = 0;
+
+            let startIndex = videoListPage * videosPerPage;
+            let endIndex = Math.min(startIndex + videosPerPage, videoLessonsList.length);
+            let pageLessons = videoLessonsList.slice(startIndex, endIndex);
 
             let html = `
                 <div class="mb-4 text-center">
-                    <h2 class="text-lg font-bold text-slate-900">Serial Lessons List</h2>
-                    <p class="text-xs text-slate-500 mt-0.5">Tap any lesson title to play in fullscreen landscape</p>
+                    <h2 class="text-lg font-bold text-slate-900">Video Lessons List</h2>
+                    <p class="text-xs text-slate-500 mt-0.5">Tap title to play in automatic fullscreen landscape</p>
                 </div>
-                <div class="space-y-3">
+                <div class="space-y-3 mb-6">
             `;
 
-            videoLessonsList.forEach((lesson, index) => {
+            if (pageLessons.length === 0) {
                 html += `
-                    <div onclick="playVideoLessonAtIndex(${index})" class="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm active:scale-[0.98] transition-all flex items-center space-x-3 cursor-pointer group hover:border-brand-300">
-                        <div class="w-9 h-9 bg-rose-50 text-rose-600 rounded-xl flex items-center justify-center font-bold text-xs flex-shrink-0 group-hover:bg-rose-600 group-hover:text-white transition-colors">
-                            ${index + 1}
-                        </div>
-                        <div class="flex-1">
-                            <h3 class="font-bold text-slate-900 text-sm leading-snug">${lesson['Questions']}</h3>
-                            <p class="text-[10px] text-slate-400 mt-0.5">Lesson ${index + 1} of ${videoLessonsList.length}</p>
-                        </div>
-                        <svg class="w-5 h-5 text-slate-400 group-hover:text-brand-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path></svg>
+                    <div class="text-center py-12 bg-white rounded-3xl border border-slate-100 p-6">
+                        <p class="text-xs text-slate-500">No video lessons available for this class.</p>
                     </div>
                 `;
-            });
+            } else {
+                pageLessons.forEach((lesson, pIdx) => {
+                    let actualIndex = startIndex + pIdx;
+                    html += `
+                        <div onclick="playVideoLessonAtIndex(${actualIndex})" class="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm active:scale-[0.98] transition-all flex items-center space-x-3 cursor-pointer group hover:border-brand-300">
+                            <div class="w-9 h-9 bg-rose-50 text-rose-600 rounded-xl flex items-center justify-center font-bold text-xs flex-shrink-0 group-hover:bg-rose-600 group-hover:text-white transition-colors">
+                                ${actualIndex + 1}
+                            </div>
+                            <div class="flex-1">
+                                <h3 class="font-bold text-slate-900 text-sm leading-snug">${lesson['Questions']}</h3>
+                                <p class="text-[10px] text-slate-400 mt-0.5">Lesson ${actualIndex + 1} of ${videoLessonsList.length}</p>
+                            </div>
+                            <svg class="w-5 h-5 text-slate-400 group-hover:text-brand-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path></svg>
+                        </div>
+                    `;
+                });
+            }
 
             html += `</div>`;
+
+            // Back & Forward Pagination Controls
+            if (totalPages > 1) {
+                html += `
+                    <div class="flex items-center justify-between bg-white p-3 rounded-2xl border border-slate-100 shadow-sm">
+                        <button onclick="changeVideoPage(-1)" ${videoListPage === 0 ? 'disabled class="opacity-40 cursor-not-allowed px-4 py-2 bg-slate-100 text-slate-500 font-semibold rounded-xl text-xs"' : 'class="px-4 py-2 bg-slate-100 text-slate-700 font-semibold rounded-xl text-xs active:scale-95 transition-transform"'}>
+                            &larr; Back
+                        </button>
+                        <span class="text-xs font-bold text-slate-600">Page ${videoListPage + 1} of ${totalPages}</span>
+                        <button onclick="changeVideoPage(1)" ${videoListPage >= totalPages - 1 ? 'disabled class="opacity-40 cursor-not-allowed px-4 py-2 bg-slate-100 text-slate-500 font-semibold rounded-xl text-xs"' : 'class="px-4 py-2 bg-brand-600 text-white font-semibold rounded-xl text-xs active:scale-95 transition-transform"'}>
+                            Forward &rarr;
+                        </button>
+                    </div>
+                `;
+            }
+
             document.getElementById('view-container').innerHTML = html;
+        }
+
+        function changeVideoPage(direction) {
+            videoListPage += direction;
+            renderVideoSerialListView();
         }
 
         function playVideoLessonAtIndex(index) {
             currentVideoIndex = index;
             renderVideoPlayerView();
 
-            // Automatically request fullscreen and landscape orientation lock on user action
+            // Automatically trigger fullscreen and landscape orientation lock on mobile devices
             let playerElement = document.getElementById('video-fullscreen-wrapper');
             if (playerElement) {
                 if (playerElement.requestFullscreen) {
@@ -388,17 +376,16 @@
             currentView = 'videoPlayer';
             let currentLesson = videoLessonsList[currentVideoIndex];
             let videoId = extractYouTubeID(currentLesson['Option A']);
-            let categoryName = currentLesson['Category'] || 'Video Lesson';
 
             document.getElementById('app-title').innerText = `Lesson ${currentVideoIndex + 1}/${videoLessonsList.length}`;
-            document.getElementById('app-subtitle').classList.add('hidden');
+            document.getElementById('app-subtitle').innerText = "Playing in Landscape Mode";
             document.getElementById('header-action').innerHTML = `
-                <button onclick="renderVideoSerialListView('${categoryName}')" class="text-xs font-semibold px-3 py-1.5 bg-slate-100 text-slate-600 rounded-xl active:scale-95">Lessons</button>
+                <button onclick="renderVideoSerialListView()" class="text-xs font-semibold px-3 py-1.5 bg-slate-100 text-slate-600 rounded-xl active:scale-95">Lessons List</button>
             `;
 
             let html = `
                 <div class="mb-3 text-xs text-slate-500 flex justify-between items-center px-1">
-                    <span class="font-semibold text-rose-600">${categoryName}</span>
+                    <span class="font-semibold text-rose-600">${currentLesson['Category'] || 'Video Lesson'}</span>
                     <span class="bg-rose-50 text-rose-700 font-bold px-2 py-0.5 rounded-full text-[10px]">Locked Controls</span>
                 </div>
 
@@ -431,9 +418,9 @@
                     </div>
                 </div>
 
-                <!-- Action Controls (Close / Next Lesson Options) -->
+                <!-- Action Controls (Close & Next Lesson Options) -->
                 <div class="space-y-3">
-                    <button onclick="renderVideoSerialListView('${categoryName}')" class="w-full bg-slate-100 text-slate-700 font-semibold py-3.5 rounded-2xl text-sm active:scale-[0.98] transition-transform">
+                    <button onclick="renderVideoSerialListView()" class="w-full bg-slate-100 text-slate-700 font-semibold py-3.5 rounded-2xl text-sm active:scale-[0.98] transition-transform">
                         Close Video & Back to List
                     </button>
                     ${currentVideoIndex < videoLessonsList.length - 1 ? `
@@ -523,11 +510,11 @@
             }
         }
 
-        // --- QUIZ SETS VIEWS ---
+        // --- MOCK TEST / QUIZ SETS VIEWS ---
         function renderSetsView() {
             currentView = 'sets';
-            document.getElementById('app-title').innerText = selectedClass;
-            document.getElementById('app-subtitle').classList.add('hidden');
+            document.getElementById('app-title').innerText = `${selectedClass} - Mock Test`;
+            document.getElementById('app-subtitle').innerText = "Select test set";
             document.getElementById('header-action').innerHTML = `
                 <button onclick="renderClassHubView()" class="text-xs font-semibold px-3 py-1.5 bg-slate-100 text-slate-600 rounded-xl active:scale-95 transition-transform">Back</button>
             `;
@@ -550,7 +537,7 @@
 
             let html = `
                 <div class="mb-5 text-center">
-                    <h2 class="text-lg font-bold text-slate-900">Available Quiz Sets</h2>
+                    <h2 class="text-lg font-bold text-slate-900">Available Mock Test Sets</h2>
                     <p class="text-xs text-slate-500 mt-0.5">Select a set to begin practice</p>
                 </div>
                 <div class="grid grid-cols-2 gap-4">
@@ -588,7 +575,7 @@
             currentView = 'nameInput';
             let displaySetNum = cleanSetNumber(selectedSet);
             document.getElementById('app-title').innerText = `Set ${displaySetNum} (${selectedClass})`;
-            document.getElementById('app-subtitle').classList.add('hidden');
+            document.getElementById('app-subtitle').innerText = "Enter student name";
             document.getElementById('header-action').innerHTML = `
                 <button onclick="renderSetsView()" class="text-xs font-semibold px-3 py-1.5 bg-slate-100 text-slate-600 rounded-xl active:scale-95 transition-transform">Back</button>
             `;
@@ -597,7 +584,7 @@
                 <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm mt-4">
                     <div class="text-center mb-6">
                         <h2 class="text-lg font-bold text-slate-900">Enter Your Name</h2>
-                        <p class="text-xs text-slate-500 mt-1">Please type your name to start this quiz set.</p>
+                        <p class="text-xs text-slate-500 mt-1">Please type your name to start this mock test.</p>
                     </div>
 
                     <div class="space-y-4">
@@ -607,7 +594,7 @@
                         </div>
 
                         <button onclick="startQuiz()" class="w-full bg-brand-600 text-white font-semibold py-3.5 rounded-2xl text-sm shadow-lg shadow-brand-500/25 active:scale-[0.98] transition-transform">
-                            Start Quiz
+                            Start Mock Test
                         </button>
                     </div>
                 </div>
@@ -626,7 +613,7 @@
             studentName = input ? input.value.trim().toUpperCase() : "";
 
             if(!studentName) {
-                alert("Please enter your name to start the quiz.");
+                alert("Please enter your name to start the test.");
                 if(input) input.focus();
                 return;
             }
@@ -684,14 +671,14 @@
             let displaySetNum = cleanSetNumber(selectedSet);
 
             document.getElementById('app-title').innerText = `Set ${displaySetNum} (${currentQuestionIndex + 1}/${currentQuestions.length})`;
-            document.getElementById('app-subtitle').classList.add('hidden');
+            document.getElementById('app-subtitle').innerText = studentName;
             document.getElementById('header-action').innerHTML = `
-                <button onclick="if(confirm('Quit quiz?')) renderSetsView();" class="text-xs font-semibold px-3 py-1.5 bg-rose-50 text-rose-600 rounded-xl">Quit</button>
+                <button onclick="if(confirm('Quit test?')) renderSetsView();" class="text-xs font-semibold px-3 py-1.5 bg-rose-50 text-rose-600 rounded-xl">Quit</button>
             `;
 
             let html = `
                 <div class="mb-3 text-xs text-slate-500 flex justify-between items-center px-1">
-                    <span>Student: <strong class="text-slate-800">${studentName}</strong></span>
+                    <span>Mock Test</span>
                     <div class="flex items-center space-x-2">
                         ${currentStreak > 1 ? `<span class="bg-amber-100 text-amber-800 font-bold px-2 py-0.5 rounded-full text-[10px] animate-pulse-once">Streak: ${currentStreak}</span>` : ''}
                         <span class="font-semibold text-brand-600">${selectedClass}</span>
@@ -778,8 +765,8 @@
 
         function showResults() {
             currentView = 'results';
-            document.getElementById('app-title').innerText = "Quiz Results & Review";
-            document.getElementById('app-subtitle').classList.add('hidden');
+            document.getElementById('app-title').innerText = "Test Results & Review";
+            document.getElementById('app-subtitle').innerText = studentName;
             document.getElementById('header-action').innerHTML = `
                 <button onclick="renderSetsView()" class="text-xs font-semibold px-3 py-1.5 bg-slate-100 text-slate-600 rounded-xl">Sets</button>
             `;
@@ -887,7 +874,7 @@
             html += `
                 <div class="space-y-3">
                     <button onclick="renderNameInputView()" class="w-full bg-brand-600 text-white font-semibold py-3.5 rounded-2xl text-sm shadow-lg shadow-brand-500/25 active:scale-[0.98] transition-transform">
-                        Retake Set
+                        Retake Test
                     </button>
                     <button onclick="renderSetsView()" class="w-full bg-white border border-slate-200 text-slate-700 font-semibold py-3.5 rounded-2xl text-sm active:scale-[0.98] transition-transform">
                         Choose Another Set
