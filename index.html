@@ -369,6 +369,16 @@
             currentVideoIndex = index;
             renderVideoPlayerView();
 
+            // Automatically request fullscreen and landscape orientation lock on user action
+            let playerElement = document.getElementById('video-fullscreen-wrapper');
+            if (playerElement) {
+                if (playerElement.requestFullscreen) {
+                    playerElement.requestFullscreen().catch(() => {});
+                } else if (playerElement.webkitRequestFullscreen) {
+                    playerElement.webkitRequestFullscreen();
+                }
+            }
+
             if (screen.orientation && typeof screen.orientation.lock === 'function') {
                 screen.orientation.lock('landscape').catch(() => {});
             }
@@ -397,8 +407,8 @@
                     <h3 class="font-bold text-slate-900 text-base leading-snug">${currentLesson['Questions']}</h3>
                 </div>
 
-                <!-- Video Player Container (Controls Hidden, Strict Non-Interactive Playback) -->
-                <div class="bg-black rounded-3xl overflow-hidden shadow-lg mb-4 aspect-video relative flex items-center justify-center">
+                <!-- Fullscreen Landscape Container Wrapper -->
+                <div id="video-fullscreen-wrapper" class="bg-black rounded-3xl overflow-hidden shadow-lg mb-4 aspect-video relative flex items-center justify-center">
                     <div id="youtube-iframe-container" class="w-full h-full absolute inset-0 pointer-events-none"></div>
 
                     <!-- Quality Control Selector Button Floating Overlay -->
@@ -421,10 +431,10 @@
                     </div>
                 </div>
 
-                <!-- Action Controls -->
+                <!-- Action Controls (Close / Next Lesson Options) -->
                 <div class="space-y-3">
                     <button onclick="renderVideoSerialListView('${categoryName}')" class="w-full bg-slate-100 text-slate-700 font-semibold py-3.5 rounded-2xl text-sm active:scale-[0.98] transition-transform">
-                        Back to Lesson List
+                        Close Video & Back to List
                     </button>
                     ${currentVideoIndex < videoLessonsList.length - 1 ? `
                         <button onclick="playNextVideoLesson()" class="w-full bg-brand-600 text-white font-semibold py-3.5 rounded-2xl text-sm shadow-lg shadow-brand-500/25 active:scale-[0.98] transition-transform">
@@ -470,7 +480,7 @@
                     'autoplay': 1,
                     'controls': 0,
                     'disablekb': 1,
-                    'fs': 0,
+                    'fs': 1,
                     'modestbranding': 1,
                     'rel': 0,
                     'iv_load_policy': 3,
