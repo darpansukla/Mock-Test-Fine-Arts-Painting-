@@ -42,7 +42,10 @@
                 <p id="app-subtitle" class="text-[10px] font-semibold text-brand-600 tracking-wide uppercase">Video Lessons & Mock Test</p>
             </div>
         </div>
-        <div id="header-action"></div>
+        <div class="flex items-center gap-2">
+            <button id="voice-toggle" onclick="initAudio(); toggleTeacherVoice()" class="text-[11px] font-bold px-3 py-1.5 bg-emerald-50 text-emerald-700 rounded-xl border border-emerald-200/60" aria-label="Toggle teacher voice">🔊 Voice</button>
+            <div id="header-action"></div>
+        </div>
     </header>
 
     <!-- Main Dynamic Container -->
@@ -86,6 +89,13 @@
         let maxStreakAchieved = 0;
         let audioCtx = null;
 
+        // Automatic teacher voice / talkback state
+        let voiceEnabled = true;
+        let voiceReady = false;
+        let lastSpokenText = '';
+        let speechQueue = [];
+        let speechSpeaking = false;
+
         // Video Lesson State variables
         let videoLessonsList = [];
         let currentVideoIndex = 0;
@@ -94,13 +104,180 @@
         let ytPlayer = null;
         let currentQuality = 'default';
 
+        function getTimeGreeting() {
+            const hour = new Date().getHours();
+            if (hour >= 5 && hour < 12) return 'Good morning';
+            if (hour >= 12 && hour < 17) return 'Good afternoon';
+            return 'Good evening';
+        }
+
+        function getTeacherScript(viewType, extraData = {}) {
+            const greeting = getTimeGreeting();
+            switch(viewType) {
+                case 'classes':
+                    return `${greeting}! I am Darpan Sir. Welcome to your Fine Arts Theory class. Please choose your class below to get started.`;
+                case 'classHub':
+                    return `You are in the ${selectedClass} section. Would you like to watch the video lessons or take a mock test?`;
+                case 'videoList':
+                    return `Let us learn step by step. Choose a video lesson from the list below.`;
+                case 'videoPlayer':
+                    return `Watch this video lesson carefully. You can switch to the next lesson whenever you are ready.`;
+                case 'sets':
+                    return `Ready to test yourself? Pick a test set and let us begin.`;
+                case 'nameInput':
+                    return `Please enter your full name before starting the mock test.`;
+                case 'quiz':
+                    const qNum = extraData.questionNumber || 1;
+                    if (qNum === 1) return `Question 1. ${extraData.questionText}. Option A: ${extraData.options.A}. Option B: ${extraData.options.B}. Option C: ${extraData.options.C}. Option D: ${extraData.options.D}.`;
+                    return `Question ${qNum}. ${extraData.questionText}.`;
+                case 'results':
+                    return `Test completed! You scored ${extraData.score} out of ${extraData.total}, which is ${extraData.percentage} percent. Great effort!`;
+                default:
+                    return `Welcome to Fine Arts Theory.`;
+            }
+        }
+
         function initAudio() {
-            if (!audioCtx) {
-                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            try {
+                if (!audioCtx) {
+                    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                }
+                if (audioCtx.state === 'suspended') audioCtx.resume();
+            } catch (e) {}
+            unlockTeacherVoice();
+        }
+
+        function getPreferredVoice() {
+            if (!('speechSynthesis' in window)) return null;
+            const voices = window.speechSynthesis.getVoices() || [];
+            return voices.find(v => /en-IN/i.test(v.lang)) ||
+                   voices.find(v => /en-GB/i.test(v.lang)) ||
+                   voices.find(v => /en-US/i.test(v.lang)) ||
+                   voices.find(v => /^en/i.test(v.lang)) || voices[0] || null;
+        }
+
+        function speakText(text, force = false) {
+            if (!voiceEnabled || !('speechSynthesis' in window) || !text) return;
+            const clean = String(text)
+                .replace(/<[^>]*>/g, ' ')
+                .replace(/\s+/g, ' ')
+                .trim();
+            if (!clean) return;
+            if (!force && clean === lastSpokenText) return;
+            lastSpokenText = clean;
+
+            speechQueue = [clean];
+            if (!speechSpeaking) processSpeechQueue();
+        }
+
+        function processSpeechQueue() {
+            if (!voiceEnabled || !('speechSynthesis' in window) || speechQueue.length === 0) {
+                speechSpeaking = false;
+                return;
             }
-            if (audioCtx.state === 'suspended') {
-                audioCtx.resume();
+            speechSpeaking = true;
+            const text = speechQueue.shift();
+            window.speechSynthesis.cancel();
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = 'en-IN';
+            utterance.rate = 0.94; 
+            utterance.pitch = 1.02; 
+            utterance.volume = 1;
+            const voice = getPreferredVoice();
+            if (voice) utterance.voice = voice;
+            utterance.onend = () => { speechSpeaking = false; processSpeechQueue(); };
+            utterance.onerror = () => { speechSpeaking = false; processSpeechQueue(); };
+            window.speechSynthesis.speak(utterance);
+            voiceReady = true;
+        }
+
+        function unlockTeacherVoice() {
+            if (!('speechSynthesis' in window)) return;
+            try {
+                window.speechSynthesis.getVoices();
+                const u = new SpeechSynthesisUtterance('');
+                u.volume = 0;
+                u.rate = 10;
+                window.speechSynthesis.speak(u);
+                voiceReady = true;
+            } catch (e) {}
+        }
+
+        function triggerPageVoice() {
+            if (!voiceEnabled) return;
+            let script = '';
+            if (currentView === 'classes') {
+                script = getTeacherScript('classes');
+            } else if (currentView === 'classHub') {
+                script = getTeacherScript('classHub');
+            } else if (currentView === 'videoSerialList') {
+                script = getTeacherScript('videoList');
+            } else if (currentView === 'videoPlayer') {
+                script = getTeacherScript('videoPlayer');
+            } else if (currentView === 'sets') {
+                script = getTeacherScript('sets');
+            } else if (currentView === 'nameInput') {
+                script = getTeacherScript('nameInput');
+            } else if (currentView === 'quiz') {
+                let q = currentQuestions[currentQuestionIndex];
+                if (q) {
+                    script = getTeacherScript('quiz', {
+                        questionNumber: currentQuestionIndex + 1,
+                        questionText: q.questionText,
+                        options: q.options
+                    });
+                }
+            } else if (currentView === 'results') {
+                let total = currentQuestions.length;
+                let score = 0;
+                currentQuestions.forEach((q, idx) => { if (userAnswers[idx] === q.correctAnswer) score++; });
+                let percentage = Math.round((score / total) * 100);
+                script = getTeacherScript('results', { score, total, percentage });
             }
+            if (script) {
+                speakText(script, true);
+            }
+        }
+
+        let teacherVoiceObserver = null;
+        function startTeacherVoiceObserver() {
+            if (teacherVoiceObserver) return;
+            const container = document.getElementById('view-container');
+            if (!container || !('MutationObserver' in window)) return;
+            teacherVoiceObserver = new MutationObserver(() => {
+                clearTimeout(window.__teacherVoiceTimer);
+                window.__teacherVoiceTimer = setTimeout(() => {
+                    triggerPageVoice();
+                }, 200);
+            });
+            teacherVoiceObserver.observe(container, { childList: true, subtree: true });
+        }
+
+        function toggleTeacherVoice() {
+            voiceEnabled = !voiceEnabled;
+            if (!voiceEnabled) {
+                speechQueue = [];
+                if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+                updateVoiceButton();
+                return;
+            }
+            updateVoiceButton();
+            triggerPageVoice();
+        }
+
+        function updateVoiceButton() {
+            const button = document.getElementById('voice-toggle');
+            if (!button) return;
+            button.innerHTML = voiceEnabled ? '🔊 Voice' : '🔇 Voice';
+            button.className = voiceEnabled
+                ? 'text-[11px] font-bold px-3 py-1.5 bg-emerald-50 text-emerald-700 rounded-xl border border-emerald-200/60'
+                : 'text-[11px] font-bold px-3 py-1.5 bg-slate-100 text-slate-500 rounded-xl border border-slate-200';
+        }
+
+        if ('speechSynthesis' in window) {
+            window.speechSynthesis.onvoiceschanged = function() {
+                getPreferredVoice();
+            };
         }
 
         function parseCSV(text) {
@@ -166,7 +343,11 @@
             document.getElementById('view-container').innerHTML = '';
 
             try {
-                let response = await fetch(SHEET_CSV_URL);
+                // Using a proxy wrapper to completely eliminate CORS fetch block issues
+                const proxyUrl = "https://api.allorigins.win/raw?url=" + encodeURIComponent(SHEET_CSV_URL);
+                let response = await fetch(proxyUrl);
+                if (!response.ok) throw new Error("Network response was not ok");
+                
                 let dataText = await response.text();
                 globalData = parseCSV(dataText);
 
@@ -175,9 +356,19 @@
                 document.getElementById('loading-view').classList.add('hidden');
                 renderClassesView();
             } catch (err) {
-                console.error(err);
-                document.getElementById('loading-view').classList.add('hidden');
-                document.getElementById('error-view').classList.remove('hidden');
+                console.error("Fetch error, attempting fallback direct fetch:", err);
+                try {
+                    let fallbackResponse = await fetch(SHEET_CSV_URL);
+                    let fallbackText = await fallbackResponse.text();
+                    globalData = parseCSV(fallbackText);
+                    if(globalData.length === 0) throw new Error("Empty fallback data");
+                    document.getElementById('loading-view').classList.add('hidden');
+                    renderClassesView();
+                } catch (fallbackErr) {
+                    console.error(fallbackErr);
+                    document.getElementById('loading-view').classList.add('hidden');
+                    document.getElementById('error-view').classList.remove('hidden');
+                }
             }
         }
 
@@ -233,7 +424,7 @@
             renderClassHubView();
         }
 
-        // View 1.5: Class Hub (Shows Video Lessons & Mock Test Options)
+        // View 1.5: Class Hub
         function renderClassHubView() {
             currentView = 'classHub';
             document.getElementById('app-title').innerText = selectedClass;
@@ -330,7 +521,6 @@
 
             html += `</div>`;
 
-            // Back & Forward Pagination Controls
             if (totalPages > 1) {
                 html += `
                     <div class="flex items-center justify-between bg-white/90 backdrop-blur-sm p-3 rounded-2xl border border-emerald-100/80 shadow-sm">
@@ -388,16 +578,13 @@
                     <span class="bg-emerald-50 text-brand-700 font-bold px-2.5 py-0.5 rounded-full text-[10px] border border-emerald-200/50">Locked Controls</span>
                 </div>
 
-                <!-- Video Title Card -->
                 <div class="bg-white/90 backdrop-blur-sm p-4 rounded-2xl border border-emerald-100/80 shadow-sm mb-4">
                     <h3 class="font-bold text-slate-900 text-base leading-snug">${currentLesson['Questions']}</h3>
                 </div>
 
-                <!-- Fullscreen Landscape Container Wrapper -->
                 <div id="video-fullscreen-wrapper" class="bg-black rounded-3xl overflow-hidden shadow-lg mb-4 aspect-video relative flex items-center justify-center">
                     <div id="youtube-iframe-container" class="w-full h-full absolute inset-0 pointer-events-none"></div>
 
-                    <!-- Quality Control Selector Button Floating Overlay -->
                     <div class="absolute top-3 right-3 z-30">
                         <div class="relative">
                             <button onclick="toggleQualityDropdown()" class="bg-slate-900/80 backdrop-blur-md text-white px-2.5 py-1.5 rounded-xl text-[11px] font-bold flex items-center space-x-1.5 shadow-md active:scale-95 transition-transform border border-white/10">
@@ -405,7 +592,6 @@
                                 <span id="quality-label">Quality</span>
                             </button>
                             
-                            <!-- Dropdown Menu -->
                             <div id="quality-dropdown" class="hidden absolute right-0 mt-2 w-28 bg-slate-900/95 backdrop-blur-md rounded-2xl shadow-xl border border-white/10 overflow-hidden py-1 z-40 text-xs">
                                 <button onclick="setVideoQuality('hd1080')" class="w-full text-left px-3 py-2 text-slate-300 hover:bg-white/10 hover:text-white font-medium">1080p</button>
                                 <button onclick="setVideoQuality('hd720')" class="w-full text-left px-3 py-2 text-slate-300 hover:bg-white/10 hover:text-white font-medium">720p</button>
@@ -417,7 +603,6 @@
                     </div>
                 </div>
 
-                <!-- Action Controls -->
                 <div class="space-y-3">
                     <button onclick="renderVideoSerialListView()" class="w-full bg-white/90 border border-emerald-100 text-slate-700 font-semibold py-3.5 rounded-2xl text-sm shadow-sm active:scale-[0.98] transition-transform">
                         Close Video & Back to List
@@ -690,6 +875,7 @@
                     <h3 class="font-semibold text-slate-900 text-base mt-1.5 leading-snug">${q.questionText}</h3>
                 </div>
 
+                <div class="mb-2 px-1 text-[11px] font-semibold text-slate-500">Which answer would you choose?</div>
                 <div class="space-y-3 mb-6">
             `;
 
@@ -736,8 +922,10 @@
                 if (currentStreak > maxStreakAchieved) {
                     maxStreakAchieved = currentStreak;
                 }
+                speakText("Your answer is correct! Great!", true);
             } else {
                 currentStreak = 0;
+                speakText("Wrong answer.", true);
             }
 
             renderQuizView();
@@ -861,8 +1049,8 @@
             } else {
                 html += `
                     <div class="bg-emerald-50/90 border border-emerald-200 p-5 rounded-3xl text-center mb-6 shadow-sm">
-                        <h3 class="font-bold text-emerald-900 text-sm">Flawless Performance</h3>
-                        <p class="text-xs text-emerald-700 mt-1">You answered every single question correctly. Amazing job!</p>
+                        <h3 class="font-bold text-emerald-900 text-sm">Excellent Work!</h3>
+                        <p class="text-xs text-emerald-700 mt-1">You answered every question correctly. Great job!</p>
                     </div>
                 `;
             }
@@ -880,7 +1068,23 @@
             document.getElementById('view-container').innerHTML = html;
         }
 
-        window.onload = loadData;
+        window.onload = function() {
+            startTeacherVoiceObserver();
+            loadData();
+            setTimeout(() => {
+                speakText(getTeacherScript('classes'));
+            }, 700);
+        };
+
+        document.addEventListener('click', function() {
+            if (!voiceReady) {
+                unlockTeacherVoice();
+                setTimeout(() => {
+                    triggerPageVoice();
+                }, 120);
+            }
+        }, { passive: true });
+
     </script>
 </body>
 </html>
